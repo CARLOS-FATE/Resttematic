@@ -15,6 +15,7 @@ import Order from './models/Order.js';
 import User from './models/User.js';
 import Reservation from './models/Reservation.js';
 import Table from './models/Table.js';
+import { mongooseConnection } from './mongoose.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -847,6 +848,6 @@ app.get('/api/tables/public', async (req, res) => {
 });
 // Conectar a la base de datos y arrancar el servidor
 export default async function handler(req, res) {
-   await connectDB(); 
+  await mongooseConnection; // Usa la conexión centralizada
   return app(req, res);
 }

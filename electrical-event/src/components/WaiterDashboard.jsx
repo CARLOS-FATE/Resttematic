@@ -30,11 +30,10 @@ const WaiterDashboard = ({ userRole }) => {
 const { token, authHeader } = auth;
   // Optimizamos fetchOrders con useCallback, dependiendo del objeto 'auth'
   const fetchOrders = useCallback(async () => {
-    // Si 'auth' o 'auth.token' no existen, no hacemos nada.
-    if (!auth || !auth.token) return;
+    if (!auth?.token) return;
     try {
       const response = await fetch(`/api/orders/my-orders`, { 
-        headers: auth.authHeader() 
+        headers: auth.authHeader() // Correcto
       });
       if (!response.ok) throw new Error('No se pudieron obtener los pedidos.');
       const data = await response.json();
@@ -43,7 +42,6 @@ const { token, authHeader } = auth;
       setError('Error al cargar los pedidos.');
     }
   }, [auth]);
-
 
 const fetchMenu = async () => {
     try {
@@ -62,14 +60,14 @@ const fetchMenu = async () => {
     }
   };
    const fetchTables = useCallback(async () => {
-        if (!token) return;
-        try {
-            const response = await fetch(`/api/tables`, { headers: authHeader() });
-            if (!response.ok) throw new Error('No se pudo obtener el estado de las mesas.');
-            const data = await response.json();
-            setTables(data);
-        } catch (err) { setError(err.message); }
-    }, [token, authHeader]);
+    if (!token) return;
+    try {
+      const response = await fetch(`/api/tables`, { headers: auth.authHeader() }); // Correcto
+      if (!response.ok) throw new Error('No se pudo obtener el estado de las mesas.');
+      const data = await response.json();
+      setTables(data);
+    } catch (err) { setError(err.message); }
+}, [token, authHeader]);
 
   const handleEditOrder = (order) => {
     setEditingOrder(order);
