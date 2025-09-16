@@ -20,8 +20,11 @@ const CookDashboard = () => {
 const fetchOrders = useCallback(async () => {
     if (token) { // Verificamos que el token exista antes de la llamada
       try {
-        const response = await fetch(`/api/orders/all`, { headers: authHeader() });
-        if (!response.ok) throw new Error('No se pudieron cargar los pedidos.');
+        const response = await fetch(`/api/orders/all`, 
+          { headers: authHeader() });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'No se pudieron cargar los pedidos.');}
         const data = await response.json();
         setOrders(data);
       } catch (err) {
