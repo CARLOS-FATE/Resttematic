@@ -8,6 +8,8 @@ import jwt from 'jsonwebtoken';
 import auth from './auth.js';
 import ExcelJS from 'exceljs'; // Importa la librería al principio del archivo
 
+// Importa la conexión centralizada
+import { connectDB } from './mongoose.js';
 
 // Importa los modelos que creaste
 import MenuItem from './models/MenuItem.js';
@@ -820,16 +822,6 @@ app.get('/api/tables/public', async (req, res) => {
 });
 // Conectar a la base de datos y arrancar el servidor
 export default async function handler(req, res) {
-    // Asegura que la conexión exista, si no, la crea
-    if (mongoose.connection.readyState !== 1) {
-        try {
-            await mongoose.connect(process.env.MONGODB_URI);
-            console.log('=> Conexión a MongoDB establecida.');
-        } catch (error) {
-            console.error('Error al conectar a MongoDB en el handler:', error.message);
-            return res.status(500).json({ message: 'Error interno del servidor.' });
-        }
-    }
-
-    return app(req, res); 
+   await connectDB();
+  return app(req, res);
 }
