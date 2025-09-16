@@ -31,16 +31,20 @@ const { token, authHeader } = auth;
   // Optimizamos fetchOrders con useCallback, dependiendo del objeto 'auth'
   const fetchOrders = useCallback(async () => {
     if (!auth?.token) return;
-    try {
-      const response = await fetch(`/api/orders/my-orders`, { 
-        headers: auth.authHeader() // Correcto
-      });
-      if (!response.ok) throw new Error('No se pudieron obtener los pedidos.');
-      const data = await response.json();
-      setOrders(data);
-    } catch (err) {
-      setError('Error al cargar los pedidos.');
+     try {
+    const response = await fetch(`/api/orders/my-orders`, { 
+      headers: auth.authHeader() 
+    });
+    if (!response.ok) {
+      const errorData = await response.json(); // <-- Intenta obtener el JSON aquí
+      throw new Error(errorData.message || 'No se pudieron obtener los pedidos.');
     }
+    const data = await response.json();
+    setOrders(data);
+  } catch (err) {
+    console.error(err); // <-- Agrega esta línea para depurar
+    setError('Error al cargar los pedidos.');
+  }
   }, [auth]);
 
 const fetchMenu = async () => {
