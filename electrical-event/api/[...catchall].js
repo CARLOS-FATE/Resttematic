@@ -29,19 +29,25 @@ if (!DB_URI) {
   console.error("MONGODB_URI no está definido. Asegúrate de configurarlo.");
   process.exit(1);
 }
-// Conectar a MongoDB
+let isConnected = false; 
+
+// Mueve la conexión fuera del handler
 const connectDB = async () => {
-    if (mongoose.connection.readyState === 0) { // Evita reconectar si ya está conectado
-        try {
-            await mongoose.connect(DB_URI);
-            console.log('¡Conexión a MongoDB exitosa!');
-        } catch (error) {
-            console.error('Error al conectar a MongoDB:', error.message);
-            process.exit(1);
-        }
+    // Si ya estamos conectados, no hacemos nada
+    if (isConnected) {
+        console.log('=> Usando conexión a la base de datos existente.');
+        return;
+    }
+
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        isConnected = true; // Marca la conexión como exitosa
+        console.log('=> Conexión a MongoDB exitosa.');
+    } catch (error) {
+        console.error('Error al conectar a MongoDB:', error.message);
+        process.exit(1);
     }
 };
-connectDB(); 
 
 app.get('/api/menu', async (req, res) => {
   try {
@@ -841,5 +847,6 @@ app.get('/api/tables/public', async (req, res) => {
 });
 // Conectar a la base de datos y arrancar el servidor
 export default async function handler(req, res) {
+   await connectDB(); 
   return app(req, res);
 }
