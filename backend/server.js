@@ -840,3 +840,7 @@ connectDB().then(() => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
   });
 });
+connectDB();
+
+// Exportar la aplicación para que Vercel pueda usarla
+export default app;
