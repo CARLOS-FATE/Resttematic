@@ -31,14 +31,17 @@ if (!DB_URI) {
 }
 // Conectar a MongoDB
 const connectDB = async () => {
-    try {
-        await mongoose.connect(DB_URI);
-        console.log('¡Conexión a MongoDB exitosa!');
-    } catch (error) {
-        console.error('Error al conectar a MongoDB:', error.message);
-        process.exit(1);
+    if (mongoose.connection.readyState === 0) { // Evita reconectar si ya está conectado
+        try {
+            await mongoose.connect(DB_URI);
+            console.log('¡Conexión a MongoDB exitosa!');
+        } catch (error) {
+            console.error('Error al conectar a MongoDB:', error.message);
+            process.exit(1);
+        }
     }
 };
+connectDB(); 
 
 app.get('/api/menu', async (req, res) => {
   try {
@@ -838,6 +841,5 @@ app.get('/api/tables/public', async (req, res) => {
 });
 // Conectar a la base de datos y arrancar el servidor
 export default async function handler(req, res) {
-  await connectDB(); // Asegura que estemos conectados
-  return app(req, res); // Luego, pasa la petición a tu app de Express
+  return app(req, res);
 }
