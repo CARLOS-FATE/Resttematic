@@ -835,11 +835,6 @@ app.get('/api/tables/public', async (req, res) => {
     }
 });
 // Conectar a la base de datos y arrancar el servidor
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Servidor escuchando en el puerto ${PORT}`);
-  });
-});
 connectDB();
 
 // Exportar la aplicación para que Vercel pueda usarla
