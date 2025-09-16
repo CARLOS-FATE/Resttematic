@@ -15,7 +15,6 @@ import Order from './models/Order.js';
 import User from './models/User.js';
 import Reservation from './models/Reservation.js';
 import Table from './models/Table.js';
-import { mongooseConnection } from './mongoose.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,30 +24,7 @@ app.use(cors());
 // Middleware para procesar JSON
 app.use(express.json());
 
-const DB_URI = process.env.MONGODB_URI;
-if (!DB_URI) {
-  console.error("MONGODB_URI no está definido. Asegúrate de configurarlo.");
-  process.exit(1);
-}
-let isConnected = false; 
 
-// Mueve la conexión fuera del handler
-const connectDB = async () => {
-    // Si ya estamos conectados, no hacemos nada
-    if (isConnected) {
-        console.log('=> Usando conexión a la base de datos existente.');
-        return;
-    }
-
-    try {
-        await mongoose.connect(process.env.MONGODB_URI);
-        isConnected = true; // Marca la conexión como exitosa
-        console.log('=> Conexión a MongoDB exitosa.');
-    } catch (error) {
-        console.error('Error al conectar a MongoDB:', error.message);
-        process.exit(1);
-    }
-};
 
 app.get('/api/menu', async (req, res) => {
   try {
@@ -86,16 +62,12 @@ app.post('/api/menu', auth(['dueño', 'administrador']), async (req, res) => {
 // ACTUALIZAR un plato existente por su ID
 app.put('/api/menu/:id', auth(['dueño', 'administrador']), async (req, res) => {
   try {
-    // Usamos findByIdAndUpdate para encontrar y actualizar el plato en un solo paso
-    // { new: true } hace que nos devuelva el documento ya actualizado
     const updatedMenuItem = await MenuItem.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
-    // Si no se encuentra el plato, devolvemos un error 404
     if (!updatedMenuItem) {
       return res.status(404).json({ message: 'Plato no encontrado.' });
     }
     
-    // Respondemos con el plato actualizado
     res.status(200).json(updatedMenuItem);
   } catch (error) {
     res.status(400).json({ message: 'Error al actualizar el plato.', error: error.message });
@@ -848,6 +820,16 @@ app.get('/api/tables/public', async (req, res) => {
 });
 // Conectar a la base de datos y arrancar el servidor
 export default async function handler(req, res) {
-  await mongooseConnection; // Usa la conexión centralizada
-  return app(req, res);
+    // Asegura que la conexión exista, si no, la crea
+    if (mongoose.connection.readyState !== 1) {
+        try {
+            await mongoose.connect(process.env.MONGODB_URI);
+            console.log('=> Conexión a MongoDB establecida.');
+        } catch (error) {
+            console.error('Error al conectar a MongoDB en el handler:', error.message);
+            return res.status(500).json({ message: 'Error interno del servidor.' });
+        }
+    }
+
+    return app(req, res); // Pasa la petición a tu app de Express
 }
