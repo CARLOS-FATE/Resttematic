@@ -831,5 +831,5 @@ export default async function handler(req, res) {
         }
     }
 
-    return app(req, res); // Pasa la petición a tu app de Express
+    return app(req, res); 
 }
