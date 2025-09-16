@@ -25,7 +25,6 @@ app.use(cors());
 app.use(express.json());
 
 
-
 app.get('/api/menu', async (req, res) => {
   try {
     const menuItems = await MenuItem.find();
@@ -33,7 +32,8 @@ app.get('/api/menu', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener el menú.', error: error.message });
   }
-});// CREAR un nuevo plato en el menú
+});
+// CREAR un nuevo plato en el menú
 app.post('/api/menu', auth(['dueño', 'administrador']), async (req, res) => {
   try {
     // Extraemos los datos del cuerpo de la petición
