@@ -1,1 +1,12 @@
+# dependencies
+/node_modules
+
+# Vercel
 .vercel
+dist
+.vercel/project.json
+
+# misc
+.env
+.env.local
+*.log
