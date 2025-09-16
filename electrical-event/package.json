@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "```sh npm create astro@latest -- --template basics ```",
   "main": "index.js",
+   "type": "module",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
