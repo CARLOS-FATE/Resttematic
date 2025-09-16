@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix ./electrical-event",
+    "start": "npm run start --prefix ./backend"
+  }
+}
