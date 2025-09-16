@@ -1,7 +1,9 @@
 {
+  "name": "rest-tematic-monorepo",
+  "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "build": "npm run build --prefix ./electrical-event",
-    "start": "npm run start --prefix ./backend"
-  }
+  "workspaces": [
+    "backend",
+    "electrical-event"
+  ]
 }
