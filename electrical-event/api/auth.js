@@ -1,11 +1,6 @@
-// En tu archivo auth.js
 import jwt from 'jsonwebtoken';
 
-// Asegúrate de que esta línea esté al principio del archivo
-// para que la variable de entorno se cargue si la ejecutas localmente.
-// Si ya tienes un archivo .env en la raíz del proyecto, puedes usar una librería como dotenv.
-// Pero en Vercel, las variables ya están disponibles en process.env
-
+// Ahora la función acepta uno o varios roles permitidos
 const auth = (allowedRoles) => (req, res, next) => {
   const token = req.header('x-auth-token');
   if (!token) {
@@ -13,16 +8,25 @@ const auth = (allowedRoles) => (req, res, next) => {
   }
 
   try {
-    // CAMBIO CLAVE AQUÍ: Usa la variable de entorno
-    const secret = process.env.JWT_SECRET; 
+    const secret = process.env.JWT_SECRET;
     if (!secret) {
         throw new Error('JWT_SECRET no está definido.');
     }
-
     const decoded = jwt.verify(token, secret);
     req.user = decoded.user;
+
+    if (!allowedRoles || allowedRoles.length === 0) {
+        return next();
+    }
     
-    // ... el resto de tu lógica de roles
+    const rolesToCheck = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+
+    if (!rolesToCheck.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Acceso prohibido. No tienes los permisos necesarios.' });
+    }
+    
+   
+    next();
   } catch (e) {
     res.status(401).json({ message: 'Token no válido.' });
   }
