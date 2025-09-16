@@ -837,7 +837,7 @@ app.get('/api/tables/public', async (req, res) => {
     }
 });
 // Conectar a la base de datos y arrancar el servidor
-connectDB();
-
-// Exportar la aplicación para que Vercel pueda usarla
-export default app;
+export default async function handler(req, res) {
+  await connectDB(); // Asegura que estemos conectados
+  return app(req, res); // Luego, pasa la petición a tu app de Express
+}
