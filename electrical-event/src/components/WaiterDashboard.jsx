@@ -49,7 +49,7 @@ const { token, authHeader } = auth;
 
 const fetchMenu = async () => {
     try {
-      const response = await fetch(`/api/menu`, { headers: authHeader() });
+      const response = await fetch(`/api/menu`);
       if (!response.ok) throw new Error('No se pudo obtener el menú.');
       const data = await response.json();
       setMenuItems(data);
