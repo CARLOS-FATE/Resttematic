@@ -22,7 +22,7 @@ const WaiterDashboard = ({ userRole }) => {
     // --- NUEVOS ESTADOS PARA MESAS Y RESERVAS ---
     const [tables, setTables] = useState([]);
     const [reservations, setReservations] = useState([]);
-    const [view, setView] = useState('tables'); // 'tables', 'orders', 'menu'
+    const [view, setView] = useState('tables', 'orders', 'menu'); // 'tables', 'orders', 'menu'
 
   if (!auth) {
     return <p className="p-8 text-center text-gray-500">Inicializando...</p>;
