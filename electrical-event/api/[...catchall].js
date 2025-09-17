@@ -25,7 +25,7 @@ app.use(express.json());
 // ===========================================
 
 // --- Rutas Públicas ---
-app.get('/api/menu', async (req, res) => {
+app.get('/api/menu', auth(['mesero', 'administrador', 'dueno', 'caja', 'cocinero']), async (req, res) => {
     try {
         const menuItems = await MenuItem.find();
         res.status(200).json(menuItems);
