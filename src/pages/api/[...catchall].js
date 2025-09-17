@@ -5,7 +5,7 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import ExcelJS from 'exceljs';
-import auth from './uth.js';
+import auth from './auth.js';
 import { connectDB } from './mongoose.js';
 
 // Importa los modelos
