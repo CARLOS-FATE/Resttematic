@@ -22,57 +22,7 @@ app.use(express.json());
 
 // ===========================================
 // RUTAS DE LA APLICACIÓN
-// ===========================================
-
-// --- RUTAS PÚBLICAS (No requieren token) ---
-
-app.get('/api/menu/public', async (req, res) => {
-    try {
-        const menuItems = await MenuItem.find();
-        res.status(200).json(menuItems);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el menú público.' });
-    }
-});
-
-app.get('/api/tables/public', async (req, res) => {
-    try {
-        const tables = await Table.find().sort({ nombre: 1 });
-        res.status(200).json(tables);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener las mesas públicas.' });
-    }
-});
-
-app.post('/api/reservations', async (req, res) => {
-    try {
-        // Lógica para crear reserva (la dejamos como pública)
-        const newReservation = new Reservation(req.body);
-        await newReservation.save();
-        res.status(201).json({ message: 'Reserva creada con éxito.', reservation: newReservation });
-    } catch (error) {
-        res.status(400).json({ message: 'Error al procesar la reserva.', error: error.message });
-    }
-});
-
-app.post('/api/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(400).json({ message: 'Credenciales inválidas.' });
-        }
-        const payload = { user: { id: user.id, role: user.role } };
-        const secret = process.env.JWT_SECRET;
-        jwt.sign(payload, secret, { expiresIn: '1h' }, (err, token) => {
-            if (err) throw err;
-            res.json({ token, user: { id: user.id, role: user.role, name: user.name } });
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Error del servidor.' });
-    }
-});
-
+// ==========================================
 
 // --- RUTAS PROTEGIDAS (Requieren token) ---
 
@@ -116,6 +66,7 @@ app.get('/api/orders/all', auth(['cocinero', 'caja']), async (req, res) => {
 // ===========================================
 // RUTAS POST
 // ===========================================
+
 
 app.post('/api/login', async (req, res) => {
     try {
@@ -245,11 +196,9 @@ app.post('/api/orders', auth('mesero'), async (req, res) => {
 // Endpoint de inicio de sesión
 
 
-// CREAR una nueva mesa
 app.post('/api/tables', auth(['administrador', 'dueno']), async (req, res) => {
     try {
-        const { nombre, capacidad, descripcion } = req.body;
-        const newTable = new Table({ nombre, capacidad, descripcion });
+        const newTable = new Table(req.body);
         await newTable.save();
         res.status(201).json(newTable);
     } catch (error) {
@@ -494,6 +443,7 @@ app.put('/api/users/:id', auth(['dueno', 'administrador']), async (req, res) => 
 });
 
 // ACTUALIZAR una mesa por su ID
+
 app.put('/api/tables/:id', auth(['administrador', 'dueno']), async (req, res) => {
     try {
         const updatedTable = await Table.findByIdAndUpdate(req.params.id, req.body, { new: true });
