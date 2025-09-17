@@ -1,0 +1,8 @@
+{
+  "builds": [
+    {
+      "src": "electrical-event/astro.config.mjs",
+      "use": "@astrojs/vercel/serverless"
+    }
+  ]
+}
