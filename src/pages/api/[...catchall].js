@@ -481,4 +481,7 @@ app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) =
 const handler = serverless(app);
 
 // Exporta la función handler para que Vercel la pueda invocar directamente.
-export { handler as default };
+export default async function ALL({ request }) {
+    // La función serverless-http ya está configurada para manejar la lógica de tu app de Express.
+    return handler(request);
+}
