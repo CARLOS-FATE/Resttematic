@@ -262,15 +262,6 @@ app.get('/api/sales/export', auth(['dueno', 'administrador']), async (req, res) 
   }
 });
 
-app.get('/api/tables', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
-    try {
-        const tables = await Table.find().sort({ nombre: 1 });
-        res.status(200).json(tables);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener las mesas.', error: error.message });
-    }
-});
-
 //End Points -POST
 
 app.post('/api/menu', auth(['dueno', 'administrador']), async (req, res) => {
