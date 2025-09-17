@@ -24,6 +24,15 @@ app.use(express.json());
 // RUTAS GET
 // ===========================================
 
+app.get('/api/menu/public', async (req, res) => {
+    try {
+        const menuItems = await MenuItem.find();
+        res.status(200).json(menuItems);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener el menú público.', error: error.message });
+    }
+});
+
 app.get('/api/menu', auth(['mesero', 'administrador', 'dueno', 'caja', 'cocinero']), async (req, res) => {
     try {
         const menuItems = await MenuItem.find();

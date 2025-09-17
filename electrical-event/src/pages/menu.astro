@@ -2,7 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
-const apiURL = new URL('/api/menu', Astro.url).toString();
+const apiURL = new URL('/api/menu/public', Astro.url).toString();
 const response = await fetch(apiURL);
 const menuCompleto = await response.json();
 
