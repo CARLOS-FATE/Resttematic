@@ -1,4 +1,4 @@
-//Ordercard
+//Ordercard.jsx
 
 import React from 'react';
 

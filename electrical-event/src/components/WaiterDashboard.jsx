@@ -49,7 +49,7 @@ const { token, authHeader } = auth;
 
 const fetchMenu = async () => {
     try {
-      const response = await fetch(`/api/menu`);
+      const response = await fetch(`/api/menu`, { headers: authHeader() });
       if (!response.ok) throw new Error('No se pudo obtener el menú.');
       const data = await response.json();
       setMenuItems(data);
@@ -100,12 +100,12 @@ const fetchMenu = async () => {
     };
 
 useEffect(() => {
-        fetchMenu();
+        
         if (token) {
             fetchOrders();
             fetchTables();
             fetchTodaysReservations();
-            
+            fetchMenu();
             const interval = setInterval(() => {
                 fetchOrders();
                 fetchTables();

@@ -44,14 +44,8 @@ const handleSubmit = async (e) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData),
-        });
-
-        // --- CORRECCIÓN AQUÍ ---
-        // 1. Leemos la respuesta del backend en formato JSON
+        });N
         const resData = await response.json();
-
-        // 2. Si la respuesta NO fue exitosa (ej. error 400), lanzamos un error
-        //    CON EL MENSAJE ESPECÍFICO que nos dio el backend.
         if (!response.ok) {
             throw new Error(resData.message || 'No se pudo crear la reserva. Inténtelo más tarde.');
         }
