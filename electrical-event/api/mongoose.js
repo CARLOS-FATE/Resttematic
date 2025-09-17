@@ -1,21 +1,24 @@
-// src/pages/api/mongoose.js
+// Archivo: electrical-event/api/mongoose.js
+
 import mongoose from 'mongoose';
 
-// Variable para almacenar el estado de la conexión
-let isConnected = false; 
+// Para evitar abrir múltiples conexiones, guardamos el estado de la conexión aquí.
+let isConnected = false;
 
-// Conecta a la base de datos solo si no está conectado
 export const connectDB = async () => {
+  // Si ya estamos conectados, no hacemos nada y reutilizamos la conexión.
   if (isConnected) {
     console.log('=> Usando conexión a la base de datos existente.');
     return;
   }
+
+  // Si no estamos conectados, creamos una nueva conexión.
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    isConnected = true; 
-    console.log('=> Conexión a MongoDB exitosa.');
+    isConnected = true;
+    console.log('=> Nueva conexión a MongoDB establecida.');
   } catch (error) {
     console.error('Error al conectar a MongoDB:', error.message);
-    throw error;
+    throw new Error('Error de conexión con la base de datos.');
   }
 };

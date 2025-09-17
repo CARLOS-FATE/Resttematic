@@ -804,6 +804,6 @@ app.delete('/api/tables/:id', auth(['administrador', 'dueno']), async (req, res)
 
 // Conectar a la base de datos y arrancar el servidor
 export default async function handler(req, res) {
-   await connectDB();
+  await connectDB(); 
   return app(req, res);
 }
