@@ -24,8 +24,7 @@ app.use(express.json());
 // RUTAS GET
 // ===========================================
 
-// --- Rutas Públicas ---
-app.get('/api/menu' , async (req, res) => {
+app.get('/api/menu', auth(['mesero', 'administrador', 'dueno', 'caja', 'cocinero']), async (req, res) => {
     try {
         const menuItems = await MenuItem.find();
         res.status(200).json(menuItems);
@@ -43,7 +42,6 @@ app.get('/api/tables/public', async (req, res) => {
     }
 });
 
-// --- Rutas Protegidas ---
 app.get('/api/tables', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
     try {
         const tables = await Table.find().sort({ nombre: 1 });
@@ -68,12 +66,10 @@ app.get('/api/reservations/confirmed-for-today', auth(['mesero', 'administrador'
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
-
         const confirmedReservations = await Reservation.find({
             estadoPago: 'confirmado',
             fecha: { $gte: today, $lt: tomorrow }
         }).populate('mesaId').sort({ hora: 1 });
-
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         res.status(200).json(confirmedReservations);
     } catch (error) {
@@ -116,17 +112,13 @@ app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) =
     try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-
-        // **CORRECCIÓN AQUÍ:** Se añade 'await' y se simplifica la lógica
         const paidOrders = await Order.find({ createdAt: { $gte: today }, esPagado: true });
         const confirmedReservations = await Reservation.find({
             updatedAt: { $gte: today },
             estadoPago: 'confirmado',
         });
-
         const incomeFromOrders = paidOrders.reduce((sum, order) => sum + order.total, 0);
         const incomeFromReservations = confirmedReservations.reduce((sum, res) => sum + res.montoPagado, 0);
-
         res.status(200).json({
             totalOrders: paidOrders.length,
             incomeFromOrders,
@@ -148,109 +140,6 @@ app.get('/api/users', auth(['dueno', 'administrador']), async (req, res) => {
     }
 });
 
-app.get('/api/receipts/:id', async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ message: 'Pedido no encontrado.' });
-    }
-    // Generate the receipt here
-    const receipt = {
-      orderId: order._id,
-      total: order.total,
-      items: order.items,
-    };
-    res.status(200).json(receipt);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al generar el recibo.', error: error.message });
-  }
-});
-
-app.get('/api/sales/daily-range', auth(['dueno', 'administrador']), async (req, res) => {
-  try {
-    const { startDate, endDate } = req.query;
-    if (!startDate || !endDate) {
-      return res.status(400).json({ message: 'Se requieren fechas de inicio y fin.' });
-    }
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
-
-    const salesByDay = await Order.aggregate([
-      { $match: { createdAt: { $gte: start, $lte: end }, esPagado: true } },
-      {
-        $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-          totalIncome: { $sum: '$total' },
-          totalOrders: { $sum: 1 }
-        }
-      },
-      { $sort: { _id: 1 } }
-    ]);
-    
-    res.status(200).json(salesByDay);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener el reporte detallado.', error: error.message });
-  }
-});
-
-app.get('/api/sales/export', auth(['dueno', 'administrador']), async (req, res) => {
-  try {
-    const { startDate, endDate } = req.query;
-    if (!startDate || !endDate) {
-      return res.status(400).json({ message: 'Se requieren fechas.' });
-    }
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
-
-    const orders = await Order.find({
-      createdAt: { $gte: start, $lte: end },
-      esPagado: true,
-    }).sort({ createdAt: 1 });
-
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Ventas');
-
-    // Definir columnas y sus encabezados
-    worksheet.columns = [
-      { header: 'Fecha', key: 'date', width: 25 },
-      { header: 'Mesa', key: 'table', width: 10 },
-      { header: 'Items', key: 'items', width: 60 },
-      { header: 'Total (S/)', key: 'total', width: 15 },
-    ];
-
-    // Añadir una fila por cada pedido encontrado
-    orders.forEach(order => {
-      worksheet.addRow({
-        date: new Date(order.createdAt).toLocaleString('es-PE'),
-        table: order.numeroMesa,
-        items: order.items.map(i => `${i.cantidad}x ${i.nombre}`).join(', '),
-        total: order.total,
-      });
-    });
-
-    // Configurar la respuesta para que el navegador la trate como un archivo de descarga
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    );
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="reporte_ventas_${startDate}_a_${endDate}.xlsx"`
-    );
-    
-    await workbook.xlsx.write(res);
-    res.end();
-
-  } catch (error) {
-    console.error("Error al exportar a Excel:", error);
-    res.status(500).json({ message: 'Error al exportar a Excel.' });
-  }
-});
-
 // ===========================================
 // RUTAS POST
 // ===========================================
@@ -259,15 +148,9 @@ app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
-        if (!user) {
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(400).json({ message: 'Credenciales inválidas.' });
         }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Credenciales inválidas.' });
-        }
-
         const payload = { user: { id: user.id, role: user.role } };
         const secret = process.env.JWT_SECRET;
         jwt.sign(payload, secret, { expiresIn: '1h' }, (err, token) => {
@@ -275,33 +158,18 @@ app.post('/api/login', async (req, res) => {
             res.json({ token, user: { id: user.id, role: user.role, name: user.name } });
         });
     } catch (error) {
-        console.error(error.message);
         res.status(500).json({ message: 'Error del servidor.' });
     }
 });
-app.post('/api/menu', auth(['dueno', 'administrador']), async (req, res) => {
-  try {
-    // Extraemos los datos del cuerpo de la petición
-    const { nombre, descripcion, precio, categoria, inventory } = req.body;
-    
-    // Creamos una nueva instancia del modelo MenuItem
-    const newMenuItem = new MenuItem({
-      nombre,
-      descripcion,
-      precio,
-      categoria,
-      inventory
-    });
 
-    // Guardamos el nuevo plato en la base de datos
-    const savedItem = await newMenuItem.save();
-    
-    // Respondemos con el plato creado y un estado 201 (Creado)
-    res.status(201).json(savedItem);
-  } catch (error) {
-    // Si hay un error (ej. validación), respondemos con un error 400
-    res.status(400).json({ message: 'Error al crear el plato.', error: error.message });
-  }
+app.post('/api/menu', auth(['dueno', 'administrador']), async (req, res) => {
+    try {
+        const newMenuItem = new MenuItem(req.body);
+        const savedItem = await newMenuItem.save();
+        res.status(201).json(savedItem);
+    } catch (error) {
+        res.status(400).json({ message: 'Error al crear el plato.', error: error.message });
+    }
 });
 
 app.post('/api/reservations', async (req, res) => {
