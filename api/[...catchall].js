@@ -181,7 +181,7 @@ app.delete('/api/tables/:id', auth(['administrador', 'dueno']), async (req, res)
 
 // ===========================================
 // RUTAS DE PEDIDOS (ORDERS)
-// ===========================================
+// ============================================
 
 app.get('/api/orders/my-orders', auth(['mesero']), async (req, res) => {
     try {
