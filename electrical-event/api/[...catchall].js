@@ -1,16 +1,13 @@
 //[...catchall].js
-
 import express from 'express';
-import cors from 'cors'; 
+import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import ExcelJS from 'exceljs';
 import auth from './auth.js';
-import ExcelJS from 'exceljs'; // Importa la librería al principio del archivo
-
-// Importa la conexión centralizada
 import { connectDB } from './mongoose.js';
 
-// Importa los modelos que creaste
+// Importa los modelos
 import MenuItem from './models/MenuItem.js';
 import Order from './models/Order.js';
 import User from './models/User.js';
@@ -18,23 +15,25 @@ import Reservation from './models/Reservation.js';
 import Table from './models/Table.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Configura CORS para permitir peticiones desde tu frontend
+// Middlewares
 app.use(cors());
-// Middleware para procesar JSON
 app.use(express.json());
 
+// ===========================================
+// RUTAS GET
+// ===========================================
 
+// --- Rutas Públicas ---
 app.get('/api/menu', async (req, res) => {
-  try {
-    const menuItems = await MenuItem.find();
-    res.status(200).json(menuItems);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener el menú.', error: error.message });
-  }
+    try {
+        const menuItems = await MenuItem.find();
+        res.status(200).json(menuItems);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener el menú.', error: error.message });
+    }
 });
-// CREAR un nuevo plato en el menú
+
 app.get('/api/tables/public', async (req, res) => {
     try {
         const tables = await Table.find().sort({ nombre: 1 });
@@ -43,6 +42,8 @@ app.get('/api/tables/public', async (req, res) => {
         res.status(500).json({ message: 'Error al obtener las mesas.', error: error.message });
     }
 });
+
+// --- Rutas Protegidas ---
 app.get('/api/tables', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
     try {
         const tables = await Table.find().sort({ nombre: 1 });
@@ -51,7 +52,7 @@ app.get('/api/tables', auth(['mesero', 'administrador', 'dueno']), async (req, r
         res.status(500).json({ message: 'Error al obtener las mesas.', error: error.message });
     }
 });
-// OBTENER todas las reservas con pago pendiente (para Caja/Admin)
+
 app.get('/api/reservations/pending-payment', auth(['caja', 'administrador', 'dueno']), async (req, res) => {
     try {
         const pendingReservations = await Reservation.find({ estadoPago: 'pendiente' }).sort({ fecha: 1, hora: 1 });
@@ -61,7 +62,6 @@ app.get('/api/reservations/pending-payment', auth(['caja', 'administrador', 'due
     }
 });
 
-// OBTENER las reservas confirmadas para hoy (para Mesero)
 app.get('/api/reservations/confirmed-for-today', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
     try {
         const today = new Date();
@@ -83,9 +83,9 @@ app.get('/api/reservations/confirmed-for-today', auth(['mesero', 'administrador'
 
 app.get('/api/reservations/all-active', auth(['administrador', 'dueno']), async (req, res) => {
     try {
-        const activeReservations = await Reservation.find({ 
+        const activeReservations = await Reservation.find({
             estadoPago: { $in: ['pendiente', 'confirmado'] },
-            fecha: { $gte: new Date().setHours(0,0,0,0) } // Solo de hoy en adelante
+            fecha: { $gte: new Date().setHours(0, 0, 0, 0) }
         }).sort({ fecha: 1, hora: 1 });
         res.status(200).json(activeReservations);
     } catch (error) {
@@ -93,69 +93,60 @@ app.get('/api/reservations/all-active', auth(['administrador', 'dueno']), async 
     }
 });
 
-app.get('/api/orders/my-orders', auth('mesero'), async (req, res) => {
-  try {
-    // Usamos req.user.id que viene del token, es más seguro
-    const orders = await Order.find({ meseroId: req.user.id });
-    res.status(200).json(orders);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener los pedidos.', error: error.message });
-  }
+app.get('/api/orders/my-orders', auth(['mesero']), async (req, res) => {
+    try {
+        const orders = await Order.find({ meseroId: req.user.id });
+        res.status(200).json(orders);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener los pedidos.', error: error.message });
+    }
 });
 
-// Endpoint para obtener TODOS los pedidos (para el cocinero)
 app.get('/api/orders/all', auth(['cocinero', 'caja']), async (req, res) => {
-  try {
-    const orders = await Order.find();
+    try {
+        const orders = await Order.find();
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-    res.status(200).json(orders);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener todos los pedidos.', error: error.message });
-  }
+        res.status(200).json(orders);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener todos los pedidos.', error: error.message });
+    }
 });
 
-// Endpoint para obtener el resumen de ventas del día
 app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) => {
     try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
+        // **CORRECCIÓN AQUÍ:** Se añade 'await' y se simplifica la lógica
         const paidOrders = await Order.find({ createdAt: { $gte: today }, esPagado: true });
         const confirmedReservations = await Reservation.find({
-            updatedAt: { $gte: today }, // Usamos updatedAt para saber cuándo se confirmó
+            updatedAt: { $gte: today },
             estadoPago: 'confirmado',
         });
 
-        const [orders, reservations] = await Promise.all([paidOrders, confirmedReservations]);
+        const incomeFromOrders = paidOrders.reduce((sum, order) => sum + order.total, 0);
+        const incomeFromReservations = confirmedReservations.reduce((sum, res) => sum + res.montoPagado, 0);
 
-        const incomeFromOrders = orders.reduce((sum, order) => sum + order.total, 0);
-        const incomeFromReservations = reservations.reduce((sum, res) => sum + res.montoPagado, 0);
-
-        res.status(200).json({ 
-            totalOrders: orders.length, 
+        res.status(200).json({
+            totalOrders: paidOrders.length,
             incomeFromOrders,
-            totalReservations: reservations.length,
+            totalReservations: confirmedReservations.length,
             incomeFromReservations,
-            totalIncome: incomeFromOrders + incomeFromReservations // Suma total
+            totalIncome: incomeFromOrders + incomeFromReservations
         });
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener el resumen de ventas.', error: error.message });
     }
 });
 
-// Endpoint para obtener todos los usuarios (requiere autenticación de admin/dueno)
 app.get('/api/users', auth(['dueno', 'administrador']), async (req, res) => {
-  try {
-    // En un futuro, aquí se agregará la lógica de autenticación
-    const users = await User.find().select('-password'); // Excluir la contraseña por seguridad
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener los usuarios.', error: error.message });
-  }
+    try {
+        const users = await User.find().select('-password');
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener los usuarios.', error: error.message });
+    }
 });
-
 
 app.get('/api/receipts/:id', async (req, res) => {
   try {
@@ -174,7 +165,6 @@ app.get('/api/receipts/:id', async (req, res) => {
     res.status(500).json({ message: 'Error al generar el recibo.', error: error.message });
   }
 });
-// En tu server.js, junto a las otras rutas de ventas
 
 app.get('/api/sales/daily-range', auth(['dueno', 'administrador']), async (req, res) => {
   try {
@@ -205,7 +195,6 @@ app.get('/api/sales/daily-range', auth(['dueno', 'administrador']), async (req, 
   }
 });
 
-// Endpoint para exportar las ventas a Excel
 app.get('/api/sales/export', auth(['dueno', 'administrador']), async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -262,8 +251,34 @@ app.get('/api/sales/export', auth(['dueno', 'administrador']), async (req, res) 
   }
 });
 
-//End Points -POST
+// ===========================================
+// RUTAS POST
+// ===========================================
 
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: 'Credenciales inválidas.' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Credenciales inválidas.' });
+        }
+
+        const payload = { user: { id: user.id, role: user.role } };
+        const secret = process.env.JWT_SECRET;
+        jwt.sign(payload, secret, { expiresIn: '1h' }, (err, token) => {
+            if (err) throw err;
+            res.json({ token, user: { id: user.id, role: user.role, name: user.name } });
+        });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: 'Error del servidor.' });
+    }
+});
 app.post('/api/menu', auth(['dueno', 'administrador']), async (req, res) => {
   try {
     // Extraemos los datos del cuerpo de la petición
@@ -387,42 +402,7 @@ app.post('/api/orders', auth('mesero'), async (req, res) => {
 });
 
 // Endpoint de inicio de sesión
-app.post('/api/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    
-    // 1. Verificar si el usuario existe
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'Credenciales inválidas.' });
-    }
-    
-    // 2. Comparar la contraseña ingresada con la contraseña cifrada
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Credenciales inválidas.' });
-    }
-    
-    // 3. Crear y enviar un token JWT si la validación es exitosa
-    const payload = {
-      user: {
-        id: user.id,
-        role: user.role,
-      },
-    };
-    
-    // Para este ejemplo, la clave secreta está aquí. En un proyecto real, estaría en una variable de entorno.
-    const secret = process.env.JWT_SECRET;
-    jwt.sign(payload, secret, { expiresIn: '1h' }, (err, token) => {
-      if (err) throw err;
-      res.json({ token, user: { id: user.id, role: user.role, name: user.name } });
-    });
 
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: 'Error del servidor.' });
-  }
-});
 
 // CREAR una nueva mesa
 app.post('/api/tables', auth(['administrador', 'dueno']), async (req, res) => {
