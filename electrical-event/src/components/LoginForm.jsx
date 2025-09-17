@@ -41,10 +41,9 @@ const LoginForm = () => {
     document.cookie = `token=${data.token}; path=/; max-age=3600; SameSite=Lax`;
     document.cookie = `role=${userRole}; path=/; max-age=3600; SameSite=Lax`;
     
-    // ▼▼▼ LÓGICA DE REDIRECCIÓN CORREGIDA ▼▼▼
+    
     let destination;
 
-    // Comparamos el rol normalizado ('dueno') con textos también normalizados
     if (userRole === 'dueno' || userRole === 'administrador') {
       destination = '/dashboard/admin';
     } else if (userRole === 'mesero') {
