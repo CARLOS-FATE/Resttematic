@@ -1,10 +1,11 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-
-const apiURL = new URL('/api/menu/public', Astro.url).toString();
-const response = await fetch(apiURL);
-const menuCompleto = await response.json();
+import { connectDB } from '../../api/mongoose.js'; // Importamos la conexión a la DB
+import MenuItem from '../../api/models/MenuItem.js'; 
+// Conectamos a la base de datos y obtenemos los datos directamente
+await connectDB();
+const menuCompleto = await MenuItem.find({});
 
 const categorias = ['Entradas', 'Platos Principales', 'Postres', 'Bebidas', 'Desayuno', 'Almuerzo', 'Cena'];
 const menuAgrupado = categorias.map(categoria => ({
