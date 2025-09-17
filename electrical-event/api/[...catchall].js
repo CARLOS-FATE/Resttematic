@@ -122,8 +122,8 @@ app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) =
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const paidOrders = Order.find({ createdAt: { $gte: today }, esPagado: true });
-        const confirmedReservations = Reservation.find({
+        const paidOrders = await Order.find({ createdAt: { $gte: today }, esPagado: true });
+        const confirmedReservations = await Reservation.find({
             updatedAt: { $gte: today }, // Usamos updatedAt para saber cuándo se confirmó
             estadoPago: 'confirmado',
         });
