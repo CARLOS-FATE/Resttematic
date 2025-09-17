@@ -21,24 +21,17 @@ app.use(cors());
 app.use(express.json());
 
 // ===========================================
-// RUTAS GET
+// RUTAS DE LA APLICACIÓN
 // ===========================================
+
+// --- RUTAS PÚBLICAS (No requieren token) ---
 
 app.get('/api/menu/public', async (req, res) => {
     try {
         const menuItems = await MenuItem.find();
         res.status(200).json(menuItems);
     } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el menú público.', error: error.message });
-    }
-});
-
-app.get('/api/menu', auth(['mesero', 'administrador', 'dueno', 'caja', 'cocinero']), async (req, res) => {
-    try {
-        const menuItems = await MenuItem.find();
-        res.status(200).json(menuItems);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el menú.', error: error.message });
+        res.status(500).json({ message: 'Error al obtener el menú público.' });
     }
 });
 
@@ -47,7 +40,48 @@ app.get('/api/tables/public', async (req, res) => {
         const tables = await Table.find().sort({ nombre: 1 });
         res.status(200).json(tables);
     } catch (error) {
-        res.status(500).json({ message: 'Error al obtener las mesas.', error: error.message });
+        res.status(500).json({ message: 'Error al obtener las mesas públicas.' });
+    }
+});
+
+app.post('/api/reservations', async (req, res) => {
+    try {
+        // Lógica para crear reserva (la dejamos como pública)
+        const newReservation = new Reservation(req.body);
+        await newReservation.save();
+        res.status(201).json({ message: 'Reserva creada con éxito.', reservation: newReservation });
+    } catch (error) {
+        res.status(400).json({ message: 'Error al procesar la reserva.', error: error.message });
+    }
+});
+
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return res.status(400).json({ message: 'Credenciales inválidas.' });
+        }
+        const payload = { user: { id: user.id, role: user.role } };
+        const secret = process.env.JWT_SECRET;
+        jwt.sign(payload, secret, { expiresIn: '1h' }, (err, token) => {
+            if (err) throw err;
+            res.json({ token, user: { id: user.id, role: user.role, name: user.name } });
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error del servidor.' });
+    }
+});
+
+
+// --- RUTAS PROTEGIDAS (Requieren token) ---
+
+app.get('/api/menu', auth(['mesero', 'administrador', 'dueno', 'caja', 'cocinero']), async (req, res) => {
+    try {
+        const menuItems = await MenuItem.find();
+        res.status(200).json(menuItems);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener el menú.' });
     }
 });
 
@@ -56,45 +90,7 @@ app.get('/api/tables', auth(['mesero', 'administrador', 'dueno']), async (req, r
         const tables = await Table.find().sort({ nombre: 1 });
         res.status(200).json(tables);
     } catch (error) {
-        res.status(500).json({ message: 'Error al obtener las mesas.', error: error.message });
-    }
-});
-
-app.get('/api/reservations/pending-payment', auth(['caja', 'administrador', 'dueno']), async (req, res) => {
-    try {
-        const pendingReservations = await Reservation.find({ estadoPago: 'pendiente' }).sort({ fecha: 1, hora: 1 });
-        res.status(200).json(pendingReservations);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener las reservas pendientes.', error: error.message });
-    }
-});
-
-app.get('/api/reservations/confirmed-for-today', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
-    try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const confirmedReservations = await Reservation.find({
-            estadoPago: 'confirmado',
-            fecha: { $gte: today, $lt: tomorrow }
-        }).populate('mesaId').sort({ hora: 1 });
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.status(200).json(confirmedReservations);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener las reservas confirmadas.', error: error.message });
-    }
-});
-
-app.get('/api/reservations/all-active', auth(['administrador', 'dueno']), async (req, res) => {
-    try {
-        const activeReservations = await Reservation.find({
-            estadoPago: { $in: ['pendiente', 'confirmado'] },
-            fecha: { $gte: new Date().setHours(0, 0, 0, 0) }
-        }).sort({ fecha: 1, hora: 1 });
-        res.status(200).json(activeReservations);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener las reservas activas.', error: error.message });
+        res.status(500).json({ message: 'Error al obtener las mesas.' });
     }
 });
 
@@ -103,7 +99,7 @@ app.get('/api/orders/my-orders', auth(['mesero']), async (req, res) => {
         const orders = await Order.find({ meseroId: req.user.id });
         res.status(200).json(orders);
     } catch (error) {
-        res.status(500).json({ message: 'Error al obtener los pedidos.', error: error.message });
+        res.status(500).json({ message: 'Error al obtener los pedidos del mesero.' });
     }
 });
 
@@ -113,39 +109,7 @@ app.get('/api/orders/all', auth(['cocinero', 'caja']), async (req, res) => {
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         res.status(200).json(orders);
     } catch (error) {
-        res.status(500).json({ message: 'Error al obtener todos los pedidos.', error: error.message });
-    }
-});
-
-app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) => {
-    try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const paidOrders = await Order.find({ createdAt: { $gte: today }, esPagado: true });
-        const confirmedReservations = await Reservation.find({
-            updatedAt: { $gte: today },
-            estadoPago: 'confirmado',
-        });
-        const incomeFromOrders = paidOrders.reduce((sum, order) => sum + order.total, 0);
-        const incomeFromReservations = confirmedReservations.reduce((sum, res) => sum + res.montoPagado, 0);
-        res.status(200).json({
-            totalOrders: paidOrders.length,
-            incomeFromOrders,
-            totalReservations: confirmedReservations.length,
-            incomeFromReservations,
-            totalIncome: incomeFromOrders + incomeFromReservations
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el resumen de ventas.', error: error.message });
-    }
-});
-
-app.get('/api/users', auth(['dueno', 'administrador']), async (req, res) => {
-    try {
-        const users = await User.find().select('-password');
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener los usuarios.', error: error.message });
+        res.status(500).json({ message: 'Error al obtener todos los pedidos.' });
     }
 });
 
