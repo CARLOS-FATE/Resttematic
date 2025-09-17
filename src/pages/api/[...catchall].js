@@ -476,7 +476,8 @@ app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) =
 // HANDLER FINAL PARA VERCEL
 // ===========================================
 
-export default async function handler(req, res) {
+export async function ALL(context) {
+  const { req, res } = context;
   await connectDB();
   return app(req, res);
 }
