@@ -32,6 +32,9 @@ app.post('/api/login', async (req, res) => {
         }
         const payload = { user: { id: user.id, role: user.role } };
         const secret = process.env.JWT_SECRET;
+        if (!secret) {
+        return res.status(500).json({ message: 'JWT_SECRET no está configurado en el servidor.' });
+        }
         jwt.sign(payload, secret, { expiresIn: '8h' }, (err, token) => {
             if (err) throw err;
             res.json({ token, user: { id: user.id, role: user.role, name: user.name } });
@@ -271,9 +274,10 @@ app.delete('/api/orders/:id', auth(['mesero']), async (req, res) => {
                 await MenuItem.findByIdAndUpdate(item.menuItemId, { $inc: { inventory: +item.cantidad } });
             }
         }
-        if (orderToDelete.mesaId && !orderToDelete.esPagado) {
+        if (orderToDelete.mesaId) {
             await Table.findByIdAndUpdate(orderToDelete.mesaId, { estado: 'disponible' });
         }
+
         
         await Order.findByIdAndDelete(req.params.id);
         res.status(200).json({ message: 'Pedido eliminado y mesa liberada con éxito.' });
@@ -317,14 +321,7 @@ app.get('/api/reservations/all-active', auth(['dueno', 'administrador']), async 
         res.status(500).json({ message: 'Error al obtener las reservas activas.', error: error.message });
     }
 });
-app.get('/api/reservations/pending-payment', auth(['caja', 'administrador', 'dueno']), async (req, res) => {
-    try {
-        const pendingReservations = await Reservation.find({ estadoPago: 'pendiente' }).sort({ fecha: 1, hora: 1 });
-        res.status(200).json(pendingReservations);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener las reservas pendientes de pago.', error: error.message });
-    }
-});
+
 app.put('/api/reservations/:id/confirm-payment-with-details', auth(['caja', 'administrador', 'dueno']), async (req, res) => {
     try {
         const { montoPagado, comprobantePago, notasCajero } = req.body;
@@ -472,39 +469,7 @@ app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) =
         res.status(500).json({ message: 'Error al obtener el resumen de ventas.', error: error.message });
     }
 });
-app.get('/api/sales/by-date', auth(['dueno', 'administrador']), async (req, res) => {
-    try {
-        const { startDate, endDate } = req.query;
-        if (!startDate || !endDate) {
-            return res.status(400).json({ message: 'Se requieren fechas de inicio y fin.' });
-        }
 
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999); // Asegura que se incluya todo el día final
-
-        const salesByDay = await Order.aggregate([
-            {
-                $match: {
-                    createdAt: { $gte: start, $lte: end },
-                    esPagado: true
-                }
-            },
-            {
-                $group: {
-                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-                    totalIncome: { $sum: '$total' },
-                    totalOrders: { $sum: 1 }
-                }
-            },
-            { $sort: { _id: 1 } }
-        ]);
-        
-        res.status(200).json(salesByDay);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el reporte de ventas por fecha.', error: error.message });
-    }
-});
 // ===========================================
 // HANDLER FINAL PARA VERCEL
 // ===========================================

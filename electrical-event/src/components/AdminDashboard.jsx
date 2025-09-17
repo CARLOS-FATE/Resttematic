@@ -80,15 +80,7 @@ const AdminDashboard = ({ userRole }) => {
         } catch (err) { setError(err.message); }
     };
 
-    const fetchSalesByDate = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch(`/api/sales/by-date?startDate=${startDate}&endDate=${endDate}`, { headers: authHeader() });
-            if (!response.ok) throw new Error('Error al obtener ventas por fecha.');
-            const data = await response.json();
-            setDetailedSalesReport(data);
-        } catch (err) { setError(err.message); }
-    };
+
 
     const handleCreateUser = async (e) => {
         e.preventDefault();
