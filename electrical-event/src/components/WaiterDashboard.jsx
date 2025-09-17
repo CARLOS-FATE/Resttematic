@@ -144,7 +144,6 @@ useEffect(() => {
             method: 'POST',
             headers: { ...authHeader(), 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                // Aquí usamos 'numeroMesa' que contiene el nombre, ej: "Mesa 1"
                 numeroMesa: tableNumber, 
                 items: orderItems,
                 estado: 'pendiente'

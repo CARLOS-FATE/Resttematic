@@ -24,7 +24,16 @@ app.use(express.json());
 // RUTAS DE LA APLICACIÓN
 // ==========================================
 
+// --- Rutas Públicas ---
+app.get('/api/tables/public', async (req, res) => {
+    try {
+        const tables = await Table.find().sort({ nombre: 1 });
+        res.status(200).json(tables);
+    } catch (error) { res.status(500).json({ message: 'Error al obtener las mesas públicas.' }); }
+});
+
 // --- RUTAS PROTEGIDAS (Requieren token) ---
+
 
 app.get('/api/menu', auth(['mesero', 'administrador', 'dueno', 'caja', 'cocinero']), async (req, res) => {
     try {
@@ -150,9 +159,6 @@ app.post('/api/orders', auth('mesero'), async (req, res) => {
     try {
         const { numeroMesa, items } = req.body;
         const meseroId = req.user.id;
-
-        // --- CORRECCIÓN AQUÍ ---
-        // La verificación de inventario debe estar DENTRO del bucle.
         for (const item of items) {
             const menuItem = await MenuItem.findById(item.menuItemId);
             if (!menuItem || menuItem.inventory < item.cantidad) {
@@ -193,9 +199,6 @@ app.post('/api/orders', auth('mesero'), async (req, res) => {
     }
 });
 
-// Endpoint de inicio de sesión
-
-
 app.post('/api/tables', auth(['administrador', 'dueno']), async (req, res) => {
     try {
         const newTable = new Table(req.body);
@@ -229,10 +232,11 @@ app.post('/api/users', auth(['dueno', 'administrador']), async (req, res) => {
     res.status(400).json({ message: 'Error al crear el usuario.', error: error.message });
   }
 });
+// ===========================================
+// RUTAS PUT
+// ===========================================
 
-//End points -PUT
 
-// ACTUALIZAR un plato existente por su ID
 app.put('/api/menu/:id', auth(['dueno', 'administrador']), async (req, res) => {
   try {
     const updatedMenuItem = await MenuItem.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -449,27 +453,12 @@ app.put('/api/tables/:id', auth(['administrador', 'dueno']), async (req, res) =>
         const updatedTable = await Table.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!updatedTable) return res.status(404).json({ message: 'Mesa no encontrada.' });
         res.status(200).json(updatedTable);
-    } catch (error) {
-        res.status(400).json({ message: 'Error al actualizar la mesa.', error: error.message });
-    }
+    } catch (error) { res.status(400).json({ message: 'Error al actualizar la mesa.', error: error.message }); }
 });
 
-// ACTUALIZAR el estado de una mesa (disponible/ocupada)
-app.put('/api/tables/:id/status', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
-    try {
-        const { estado } = req.body;
-        if (!['disponible', 'ocupada'].includes(estado)) {
-            return res.status(400).json({ message: 'Estado no válido.' });
-        }
-        const updatedTable = await Table.findByIdAndUpdate(req.params.id, { estado }, { new: true });
-        if (!updatedTable) return res.status(404).json({ message: 'Mesa no encontrada.' });
-        res.status(200).json(updatedTable);
-    } catch (error) {
-        res.status(400).json({ message: 'Error al actualizar el estado de la mesa.', error: error.message });
-    }
-});
-
-//End points -DELETED
+// ===========================================
+// RUTAS DELETE
+// ===========================================
 
 // ELIMINAR un plato del menú por su ID
 app.delete('/api/menu/:id', auth(['dueno', 'administrador']), async (req, res) => {
@@ -555,20 +544,10 @@ app.delete('/api/users/:id', auth(['dueno', 'administrador']), async (req, res) 
 // ELIMINAR una mesa por su ID
 app.delete('/api/tables/:id', auth(['administrador', 'dueno']), async (req, res) => {
     try {
-        const tableId = req.params.id;
-        const futureReservations = await Reservation.find({ 
-            mesaId: tableId,
-            fecha: { $gte: new Date() }
-        });
-        if (futureReservations.length > 0) {
-            return res.status(400).json({ message: 'No se puede eliminar la mesa porque tiene reservas futuras asociadas.' });
-        }
-        const deletedTable = await Table.findByIdAndDelete(tableId);
+        const deletedTable = await Table.findByIdAndDelete(req.params.id);
         if (!deletedTable) return res.status(404).json({ message: 'Mesa no encontrada.' });
         res.status(200).json({ message: 'Mesa eliminada con éxito.' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error al eliminar la mesa.', error: error.message });
-    }
+    } catch (error) { res.status(500).json({ message: 'Error al eliminar la mesa.', error: error.message }); }
 });
 
 
