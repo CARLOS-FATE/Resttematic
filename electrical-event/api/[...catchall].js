@@ -469,7 +469,7 @@ app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) =
         res.status(500).json({ message: 'Error al obtener el resumen de ventas.', error: error.message });
     }
 });
-
+/////////////////////////////////////////////////
 // ===========================================
 // HANDLER FINAL PARA VERCEL
 // ===========================================
