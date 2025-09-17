@@ -54,7 +54,7 @@ const orderSchema = new mongoose.Schema({
     type: String,
     enum: ['efectivo', 'yape', 'plin', 'tarjeta', 'otro'],
     default: 'efectivo'
-    } ,
+    } 
 }, {
     timestamps: true,
 });
