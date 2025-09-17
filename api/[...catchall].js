@@ -228,10 +228,10 @@ app.put('/api/orders/:id', auth(['mesero']), async (req, res) => {
         if (!originalOrder) return res.status(404).json({ message: 'Pedido original no encontrado.' });
         
         for (const item of originalOrder.items) {
-            await MenuItem.findByIdAndUpdate(item.menuItemId, { $inc: { inventory: +item.cantidad } });
+            await MenuItem.findByIdAndUpdate(item.menuItemId,inventory >= cantidad, { $inc: { inventory: +item.cantidad } });
         }
         for (const item of updatedData.items) {
-            await MenuItem.findByIdAndUpdate(item.menuItemId, { $inc: { inventory: -item.cantidad } });
+            await MenuItem.findByIdAndUpdate(item.menuItemId, inventory >= cantidad,{ $inc: { inventory: -item.cantidad } });
         }
         
         const updatedOrder = await Order.findByIdAndUpdate(req.params.id, updatedData, { new: true });
@@ -311,9 +311,11 @@ app.get('/api/reservations/pending-payment', auth(['caja', 'administrador', 'due
 });
 app.get('/api/reservations/all-active', auth(['dueno', 'administrador']), async (req, res) => {
     try {
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
         const activeReservations = await Reservation.find({
             estadoPago: { $in: ['pendiente', 'confirmado'] },
-            fecha: { $gte: new Date().setHours(0, 0, 0, 0) } // Solo reservas de hoy en adelante
+            fecha: { $gte: startOfToday } 
         }).sort({ fecha: 1, hora: 1 });
         
         res.status(200).json(activeReservations);
