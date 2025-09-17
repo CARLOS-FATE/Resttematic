@@ -1,0 +1,124 @@
+---
+// Index.astro
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ImageCarousel from '../components/ImageCarousel.jsx';
+import { works } from '../data/paintings.jsx';
+import ReservationForm from '../components/reservations/ReservationForm.jsx';
+
+const menuItems = [
+  {
+    name: "Risotto 'Los Girasoles'",
+    description: "Cremoso risotto de azafrán y parmesano, decorado con flores comestibles.",
+    image: "/plato-girasoles.jpg",
+    price: "S/. 22"
+  },
+  {
+    name: "Solomillo 'Noche Estrellada'",
+    description: "Medallón de solomillo sobre un espejo de salsa de vino tinto y arándanos.",
+    image: "/plato-solomillo.jpg",
+    price: "S/. 35"
+  },
+  {
+    name: "Tártaro 'El Viñedo Rojo'",
+    description: "Tártaro de atún rojo fresco con aguacate y un toque de cítricos.",
+    image: "/plato-tartaro.png",
+    price: "S/. 18"
+  }
+];
+---
+
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurante Van Gogh - Una Experiencia Culinaria Artística</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Definimos las fuentes en el CSS para fácil acceso con Tailwind */
+        body {
+            font-family: 'Lato', sans-serif;
+            /* Añadimos una sutil textura de fondo que evoca un lienzo */
+            background-image: url('/canvas-texture.png');
+            background-color: #0b1a33; /* Un azul más oscuro y profundo */
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+        }
+    </style>
+</head>
+<body class="text-gray-200">
+    <Header />
+
+    <main>
+        <section class="relative min-h-screen flex items-center justify-center text-center bg-cover bg-center" style="background-image: url('/Van_Gogh.jpg');">
+            <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+            <div class="relative z-10 px-4">
+                <h1 class="text-6xl md:text-8xl font-bold text-yellow-300 drop-shadow-lg">Donde el Sabor se Vuelve Arte</h1>
+                <p class="text-xl mt-4 max-w-2xl mx-auto">
+                    Una experiencia culinaria inspirada en la pasión y el color de Vincent van Gogh.
+                </p>
+                <a href="#reservar" class="mt-8 inline-block bg-yellow-400 text-blue-900 font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-300 transition-transform duration-300 hover:scale-105">
+                    Reservar una Mesa
+                </a>
+            </div>
+        </section>
+
+        <section id="menu" class="py-20 container mx-auto px-4">
+            <h2 class="text-5xl font-semibold mb-12 text-center text-yellow-300">Nuestra Galería de Sabores</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                {menuItems.map(item => (
+                    <div class="bg-[#122a51] rounded-lg shadow-xl overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
+                        <img src={item.image} alt={item.name} class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold text-yellow-300 mb-2">{item.name}</h3>
+                            <p class="text-gray-300 mb-4">{item.description}</p>
+                            <div class="text-right text-2xl font-bold text-yellow-400">{item.price}</div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </section>
+
+        <section id="filosofia" class="py-20 bg-black bg-opacity-20">
+            <div class="container mx-auto px-4 flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2">
+                    <h2 class="text-4xl font-semibold mb-4 text-yellow-300">Inspirados por un Genio</h2>
+                    <p class="leading-relaxed mb-4">
+                        Vincent van Gogh no solo pintaba, volcaba su alma en cada pincelada. Esa misma pasión es la que nuestro equipo de cocina pone en cada plato. Usamos ingredientes como lienzos y sabores como colores para crear obras que no solo alimentan el cuerpo, sino también el espíritu.
+                    </p>
+                    <p class="leading-relaxed">
+                        Nuestro restaurante está decorado con réplicas de sus obras más famosas, creando un ambiente único donde puedes cenar rodeado de belleza y creatividad.
+                    </p>
+                </div>
+                <div class="lg:w-1/2 w-full">
+                    <ImageCarousel works={works} client:load /> 
+                </div>
+            </div>
+        </section>
+
+        <section id="reservar" class="py-20 container mx-auto px-4">
+    <h2 id="contacto"  class="text-5xl font-semibold mb-12 text-center text-yellow-300">Visítanos</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {/* Aquí reemplazamos el formulario antiguo por el componente de React */}
+        <ReservationForm client:load />
+        
+        <div class="w-full h-96 rounded-lg overflow-hidden shadow-md">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d247.04748349312493!2d-78.04999160997976!3d-7.815238059566965!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses-419!2spe!4v1757882530466!5m2!1ses-419!2spe"
+                width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        </div>
+    </div>
+</section>
+    </main>
+    
+    <Footer />
+</body>
+</html>

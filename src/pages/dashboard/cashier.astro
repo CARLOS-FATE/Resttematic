@@ -1,0 +1,19 @@
+---
+// src/pages/dashboard/cashier.astro
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import DashboardWrapper from '../../components/DashboardWrapper.client.jsx';
+// --- Lógica del Guardián Integrada ---
+const allowedRoles = ['caja', 'administrador', 'dueno'];
+const token = Astro.cookies.get('token')?.value;
+const userRole = Astro.cookies.get('role')?.value;
+
+if (!token || !userRole || !allowedRoles.includes(userRole)) {
+  return Astro.redirect('/login', 307);
+}
+
+---
+
+<DashboardLayout title="Panel de cajero">
+ {/* Ahora solo llamamos a nuestro envoltorio con su rol correspondiente */}
+  <DashboardWrapper userRole={userRole} client:load />
+</DashboardLayout>
