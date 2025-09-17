@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import ExcelJS from 'exceljs';
 import auth from './auth.js';
 import { connectDB } from './mongoose.js';
+import serverless from 'serverless-http';
 
 // Importa los modelos
 import MenuItem from './models/MenuItem.js';
@@ -18,6 +19,8 @@ import Table from './models/Table.js';
 const app = express();
 app.use(cors());
 app.use(express.json());
+// Conexión a la base de datos
+connectDB();
 
 // ===========================================
 // RUTAS DE LOGIN Y USUARIOS
@@ -475,9 +478,7 @@ app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) =
 // ===========================================
 // HANDLER FINAL PARA VERCEL
 // ===========================================
+const handler = serverless(app);
 
-export async function ALL(context) {
-  const { req, res } = context;
-  await connectDB();
-  return app(req, res);
-}
+// Exporta la función handler para que Vercel la pueda invocar directamente.
+export { handler as default };
