@@ -44,8 +44,8 @@ const LoginForm = () => {
     // ▼▼▼ LÓGICA DE REDIRECCIÓN CORREGIDA ▼▼▼
     let destination;
 
-    // Comparamos el rol normalizado ('dueno') con textos también normalizados
-    if (userRole === 'dueno' || userRole === 'administrador') {
+    // Comparamos el rol normalizado ('dueño') con textos también normalizados
+    if (userRole === 'dueño' || userRole === 'administrador') {
       destination = '/dashboard/admin';
     } else if (userRole === 'mesero') {
       destination = '/dashboard/waiter';

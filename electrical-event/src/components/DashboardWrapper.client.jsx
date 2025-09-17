@@ -15,8 +15,8 @@ const dashboardMap = {
   cocinero: CookDashboard,
   caja: CashierDashboard,
   mesero: WaiterDashboard,
-  // Añade aquí el rol 'dueno' para que apunte al AdminDashboard
-  dueno: AdminDashboard, 
+  // Añade aquí el rol 'dueño' para que apunte al AdminDashboard
+  dueño: AdminDashboard, 
 };
 
 const DashboardWrapper = ({ userRole }) => {

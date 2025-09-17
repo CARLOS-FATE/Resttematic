@@ -504,7 +504,7 @@ const AdminDashboard = ({ userRole }) => {
                                     <option value="mesero">Mesero</option>
                                     <option value="caja">Cajero</option>
                                     <option value="cocinero">Cocinero</option>
-                                    {userRole === 'dueno' && <option value="administrador">Administrador</option>}
+                                    {userRole === 'dueño' && <option value="administrador">Administrador</option>}
                                 </select>
 
                                 <button type="submit" className="col-span-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Crear Usuario</button>

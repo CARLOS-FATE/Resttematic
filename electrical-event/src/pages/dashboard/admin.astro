@@ -4,7 +4,7 @@
 import DashboardWrapper from '../../components/DashboardWrapper.client.jsx';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 
-const allowedRoles = ['dueno', 'administrador'];
+const allowedRoles = ['dueño', 'administrador'];
 
 const token = Astro.cookies.get('token')?.value;
 const userRole = Astro.cookies.get('role')?.value;
