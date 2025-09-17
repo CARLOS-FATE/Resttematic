@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       
       let destination;
-      if (userRole === 'dueño' || userRole === 'administrador') {
+      if (userRole === 'dueno' || userRole === 'administrador') {
         destination = '/dashboard/admin';
       } else if (userRole === 'mesero') {
         destination = '/dashboard/waiter';

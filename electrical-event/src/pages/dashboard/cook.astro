@@ -5,7 +5,7 @@ import Layout from '../../layouts/Layout.astro';
 import DashboardWrapper from '../../components/DashboardWrapper.client.jsx';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 // Lógica de protección (esto está perfecto)
-const allowedRoles = ['cocinero', 'dueño'];
+const allowedRoles = ['cocinero', 'dueno'];
 const token = Astro.cookies.get('token')?.value;
 const userRole = Astro.cookies.get('role')?.value;
 

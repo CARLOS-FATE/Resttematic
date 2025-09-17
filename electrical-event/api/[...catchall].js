@@ -44,7 +44,7 @@ app.get('/api/tables/public', async (req, res) => {
         res.status(500).json({ message: 'Error al obtener las mesas.', error: error.message });
     }
 });
-app.get('/api/tables', auth(['mesero', 'administrador', 'dueño']), async (req, res) => {
+app.get('/api/tables', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
     try {
         const tables = await Table.find().sort({ nombre: 1 });
         res.status(200).json(tables);
@@ -53,7 +53,7 @@ app.get('/api/tables', auth(['mesero', 'administrador', 'dueño']), async (req, 
     }
 });
 // OBTENER todas las reservas con pago pendiente (para Caja/Admin)
-app.get('/api/reservations/pending-payment', auth(['caja', 'administrador', 'dueño']), async (req, res) => {
+app.get('/api/reservations/pending-payment', auth(['caja', 'administrador', 'dueno']), async (req, res) => {
     try {
         const pendingReservations = await Reservation.find({ estadoPago: 'pendiente' }).sort({ fecha: 1, hora: 1 });
         res.status(200).json(pendingReservations);
@@ -63,7 +63,7 @@ app.get('/api/reservations/pending-payment', auth(['caja', 'administrador', 'due
 });
 
 // OBTENER las reservas confirmadas para hoy (para Mesero)
-app.get('/api/reservations/confirmed-for-today', auth(['mesero', 'administrador', 'dueño']), async (req, res) => {
+app.get('/api/reservations/confirmed-for-today', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
     try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -82,7 +82,7 @@ app.get('/api/reservations/confirmed-for-today', auth(['mesero', 'administrador'
     }
 });
 
-app.get('/api/reservations/all-active', auth(['administrador', 'dueño']), async (req, res) => {
+app.get('/api/reservations/all-active', auth(['administrador', 'dueno']), async (req, res) => {
     try {
         const activeReservations = await Reservation.find({ 
             estadoPago: { $in: ['pendiente', 'confirmado'] },
@@ -118,7 +118,7 @@ app.get('/api/orders/all', auth(['cocinero', 'caja']), async (req, res) => {
 });
 
 // Endpoint para obtener el resumen de ventas del día
-app.get('/api/sales/daily', auth(['dueño', 'administrador']), async (req, res) => {
+app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) => {
     try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -146,8 +146,8 @@ app.get('/api/sales/daily', auth(['dueño', 'administrador']), async (req, res) 
     }
 });
 
-// Endpoint para obtener todos los usuarios (requiere autenticación de admin/dueño)
-app.get('/api/users', auth(['dueño', 'administrador']), async (req, res) => {
+// Endpoint para obtener todos los usuarios (requiere autenticación de admin/dueno)
+app.get('/api/users', auth(['dueno', 'administrador']), async (req, res) => {
   try {
     // En un futuro, aquí se agregará la lógica de autenticación
     const users = await User.find().select('-password'); // Excluir la contraseña por seguridad
@@ -177,7 +177,7 @@ app.get('/api/receipts/:id', async (req, res) => {
 });
 // En tu server.js, junto a las otras rutas de ventas
 
-app.get('/api/sales/daily-range', auth(['dueño', 'administrador']), async (req, res) => {
+app.get('/api/sales/daily-range', auth(['dueno', 'administrador']), async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     if (!startDate || !endDate) {
@@ -207,7 +207,7 @@ app.get('/api/sales/daily-range', auth(['dueño', 'administrador']), async (req,
 });
 
 // Endpoint para exportar las ventas a Excel
-app.get('/api/sales/export', auth(['dueño', 'administrador']), async (req, res) => {
+app.get('/api/sales/export', auth(['dueno', 'administrador']), async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     if (!startDate || !endDate) {
@@ -263,7 +263,7 @@ app.get('/api/sales/export', auth(['dueño', 'administrador']), async (req, res)
   }
 });
 
-app.get('/api/tables', auth(['mesero', 'administrador', 'dueño']), async (req, res) => {
+app.get('/api/tables', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
     try {
         const tables = await Table.find().sort({ nombre: 1 });
         res.status(200).json(tables);
@@ -274,7 +274,7 @@ app.get('/api/tables', auth(['mesero', 'administrador', 'dueño']), async (req, 
 
 //End Points -POST
 
-app.post('/api/menu', auth(['dueño', 'administrador']), async (req, res) => {
+app.post('/api/menu', auth(['dueno', 'administrador']), async (req, res) => {
   try {
     // Extraemos los datos del cuerpo de la petición
     const { nombre, descripcion, precio, categoria, inventory } = req.body;
@@ -435,7 +435,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // CREAR una nueva mesa
-app.post('/api/tables', auth(['administrador', 'dueño']), async (req, res) => {
+app.post('/api/tables', auth(['administrador', 'dueno']), async (req, res) => {
     try {
         const { nombre, capacidad, descripcion } = req.body;
         const newTable = new Table({ nombre, capacidad, descripcion });
@@ -446,7 +446,7 @@ app.post('/api/tables', auth(['administrador', 'dueño']), async (req, res) => {
     }
 });
 
-app.post('/api/users', auth(['dueño', 'administrador']), async (req, res) => {
+app.post('/api/users', auth(['dueno', 'administrador']), async (req, res) => {
   try {
     const { email, password, role, name } = req.body;
     
@@ -473,7 +473,7 @@ app.post('/api/users', auth(['dueño', 'administrador']), async (req, res) => {
 //End points -PUT
 
 // ACTUALIZAR un plato existente por su ID
-app.put('/api/menu/:id', auth(['dueño', 'administrador']), async (req, res) => {
+app.put('/api/menu/:id', auth(['dueno', 'administrador']), async (req, res) => {
   try {
     const updatedMenuItem = await MenuItem.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
@@ -488,7 +488,7 @@ app.put('/api/menu/:id', auth(['dueño', 'administrador']), async (req, res) => 
 });
 
 // ACTUALIZAR el estado de una mesa (disponible/ocupada)
-app.put('/api/tables/:id/status', auth(['mesero', 'administrador', 'dueño']), async (req, res) => {
+app.put('/api/tables/:id/status', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
     try {
         const { estado } = req.body;
         if (!['disponible', 'ocupada'].includes(estado)) {
@@ -502,7 +502,7 @@ app.put('/api/tables/:id/status', auth(['mesero', 'administrador', 'dueño']), a
     }
 });
 
-app.put('/api/reservations/:id/cancel', auth(['administrador', 'dueño']), async (req, res) => {
+app.put('/api/reservations/:id/cancel', auth(['administrador', 'dueno']), async (req, res) => {
     try {
         const updatedReservation = await Reservation.findByIdAndUpdate(
             req.params.id,
@@ -521,7 +521,7 @@ app.put('/api/reservations/:id/cancel', auth(['administrador', 'dueño']), async
 });
 
 // CONFIRMAR el pago de una reserva (para Caja/Admin)
-app.put('/api/reservations/:id/confirm-payment', auth(['caja', 'administrador', 'dueño']), async (req, res) => {
+app.put('/api/reservations/:id/confirm-payment', auth(['caja', 'administrador', 'dueno']), async (req, res) => {
     try {
         const updatedReservation = await Reservation.findByIdAndUpdate(
             req.params.id,
@@ -539,7 +539,7 @@ app.put('/api/reservations/:id/confirm-payment', auth(['caja', 'administrador', 
     }
 });
 
-app.put('/api/reservations/:id/confirm-payment-with-details', auth(['caja', 'administrador', 'dueño']), async (req, res) => {
+app.put('/api/reservations/:id/confirm-payment-with-details', auth(['caja', 'administrador', 'dueno']), async (req, res) => {
     try {
         const { montoPagado, comprobantePago, notasCajero } = req.body;
         
@@ -657,7 +657,7 @@ app.put('/api/orders/:id/paid', auth('caja'), async (req, res) => {
 });
 
 // Endpoint para actualizar un usuario por su ID
-app.put('/api/users/:id', auth(['dueño', 'administrador']), async (req, res) => {
+app.put('/api/users/:id', auth(['dueno', 'administrador']), async (req, res) => {
   try {
     const { password, ...rest } = req.body;
     let updateFields = { ...rest };
@@ -683,7 +683,7 @@ app.put('/api/users/:id', auth(['dueño', 'administrador']), async (req, res) =>
 });
 
 // ACTUALIZAR una mesa por su ID
-app.put('/api/tables/:id', auth(['administrador', 'dueño']), async (req, res) => {
+app.put('/api/tables/:id', auth(['administrador', 'dueno']), async (req, res) => {
     try {
         const updatedTable = await Table.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!updatedTable) return res.status(404).json({ message: 'Mesa no encontrada.' });
@@ -694,7 +694,7 @@ app.put('/api/tables/:id', auth(['administrador', 'dueño']), async (req, res) =
 });
 
 // ACTUALIZAR el estado de una mesa (disponible/ocupada)
-app.put('/api/tables/:id/status', auth(['mesero', 'administrador', 'dueño']), async (req, res) => {
+app.put('/api/tables/:id/status', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
     try {
         const { estado } = req.body;
         if (!['disponible', 'ocupada'].includes(estado)) {
@@ -711,7 +711,7 @@ app.put('/api/tables/:id/status', auth(['mesero', 'administrador', 'dueño']), a
 //End points -DELETED
 
 // ELIMINAR un plato del menú por su ID
-app.delete('/api/menu/:id', auth(['dueño', 'administrador']), async (req, res) => {
+app.delete('/api/menu/:id', auth(['dueno', 'administrador']), async (req, res) => {
   try {
     const deletedMenuItem = await MenuItem.findByIdAndDelete(req.params.id);
 
@@ -776,13 +776,13 @@ app.delete('/api/orders/:id', auth('mesero'), async (req, res) => {
 });
 
 // Endpoint para eliminar un usuario
-app.delete('/api/users/:id', auth(['dueño', 'administrador']), async (req, res) => {
+app.delete('/api/users/:id', auth(['dueno', 'administrador']), async (req, res) => {
   try {
     const userToDelete = await User.findById(req.params.id);
     if (!userToDelete) return res.status(404).json({ message: 'Usuario no encontrado.' });
-    if (userToDelete.role === 'dueño') return res.status(403).json({ message: 'El dueño no puede ser eliminado.' });
-    if (userToDelete.role === 'administrador' && req.user.role !== 'dueño') {
-      return res.status(403).json({ message: 'Solo el dueño puede eliminar a un administrador.' });
+    if (userToDelete.role === 'dueno') return res.status(403).json({ message: 'El dueno no puede ser eliminado.' });
+    if (userToDelete.role === 'administrador' && req.user.role !== 'dueno') {
+      return res.status(403).json({ message: 'Solo el dueno puede eliminar a un administrador.' });
     }
     await User.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Usuario eliminado con éxito.' });
@@ -792,7 +792,7 @@ app.delete('/api/users/:id', auth(['dueño', 'administrador']), async (req, res)
 });
 
 // ELIMINAR una mesa por su ID
-app.delete('/api/tables/:id', auth(['administrador', 'dueño']), async (req, res) => {
+app.delete('/api/tables/:id', auth(['administrador', 'dueno']), async (req, res) => {
     try {
         const tableId = req.params.id;
         const futureReservations = await Reservation.find({ 

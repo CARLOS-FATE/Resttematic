@@ -49,7 +49,7 @@ const AdminDashboard = ({ userRole }) => {
             fetchMenuItems();
             fetchTables();
             fetchReservations();
-            if (userRole === 'dueño' || userRole === 'administrador') {
+            if (userRole === 'dueno' || userRole === 'administrador') {
                 fetchUsers();
             }
         }
@@ -399,7 +399,7 @@ const AdminDashboard = ({ userRole }) => {
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-4xl font-bold mb-6 text-center">Panel de {userRole === 'dueño' ? 'Dueño' : 'Administrador'}</h1>
+            <h1 className="text-4xl font-bold mb-6 text-center">Panel de {userRole === 'dueno' ? 'Dueno' : 'Administrador'}</h1>
 
             {error && <p className="bg-red-100 text-red-700 p-2 rounded-md mb-4 text-center">{error}</p>}
             {success && <p className="bg-green-100 text-green-700 p-2 rounded-md mb-4 text-center">{success}</p>}
@@ -504,7 +504,7 @@ const AdminDashboard = ({ userRole }) => {
                                     <option value="mesero">Mesero</option>
                                     <option value="caja">Cajero</option>
                                     <option value="cocinero">Cocinero</option>
-                                    {userRole === 'dueño' && <option value="administrador">Administrador</option>}
+                                    {userRole === 'dueno' && <option value="administrador">Administrador</option>}
                                 </select>
 
                                 <button type="submit" className="col-span-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Crear Usuario</button>
@@ -531,7 +531,7 @@ const AdminDashboard = ({ userRole }) => {
                                                 <td className="p-2">{user.email}</td>
                                                 <td className="p-2 capitalize">{user.role}</td>
                                                 <td className="p-2">
-                                                    {user.role !== 'dueño' && (
+                                                    {user.role !== 'dueno' && (
                                                         <button
                                                             onClick={() => handleUpdate(user._id)}
                                                             className="text-yellow-600 hover:text-yellow-800 transition-colors">
@@ -540,7 +540,7 @@ const AdminDashboard = ({ userRole }) => {
                                                     )}
                                                 </td>
                                                 <td className="p-2 ">
-                                                    {user.role !== 'dueño' && (
+                                                    {user.role !== 'dueno' && (
                                                         <button
                                                             onClick={() => handleDeleteUser(user)}
                                                             className="text-red-500 hover:text-red-700 transition-colors"
