@@ -9,11 +9,11 @@ import auth from './auth.js';
 import { connectDB } from './mongoose.js';
 
 // Importa los modelos
-import MenuItem from './models/MenuItem.js';
-import Order from './models/Order.js';
-import User from './models/User.js';
-import Reservation from './models/Reservation.js';
-import Table from './models/Table.js';
+import MenuItem from '../../../models/MenuItem.js';
+import Order from '../../../models/Order.js';
+import User from '../../../models/User.js';
+import Reservation from '../../../models/Reservation.js';
+import Table from '../../../models/Table.js';
 
 const app = express();
 app.use(cors());
