@@ -18,12 +18,10 @@ import Table from './models/Table.js';
 const app = express();
 app.use(cors());
 app.use(express.json());
-// Conexión a la base de datos
 
 // ===========================================
 // RUTAS DE LOGIN Y USUARIOS
-// ============================================
-
+// ===========================================
 
 app.post('/api/login', async (req, res) => {
     try {
@@ -44,12 +42,6 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// ===========================================
-// RUTAS PROTEGIDAS (Requieren Token a partir de aquí)
-// ===========================================
-
-
-// --- Rutas de Mesero ---
 app.get('/api/users', auth(['dueno', 'administrador']), async (req, res) => {
     try {
         const users = await User.find().select('-password');
@@ -164,7 +156,9 @@ app.put('/api/tables/:id', auth(['administrador', 'dueno']), async (req, res) =>
         const updatedTable = await Table.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!updatedTable) return res.status(404).json({ message: 'Mesa no encontrada.' });
         res.status(200).json(updatedTable);
-    } catch (error) { res.status(400).json({ message: 'Error al actualizar la mesa.', error: error.message }); }
+    } catch (error) {
+        res.status(400).json({ message: 'Error al actualizar la mesa.', error: error.message });
+    }
 });
 
 app.put('/api/tables/:id/status', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
@@ -186,7 +180,7 @@ app.delete('/api/tables/:id', auth(['administrador', 'dueno']), async (req, res)
 
 // ===========================================
 // RUTAS DE PEDIDOS (ORDERS)
-// ============================================
+// ===========================================
 
 app.get('/api/orders/my-orders', auth(['mesero']), async (req, res) => {
     try {
@@ -233,10 +227,10 @@ app.put('/api/orders/:id', auth(['mesero']), async (req, res) => {
         if (!originalOrder) return res.status(404).json({ message: 'Pedido original no encontrado.' });
         
         for (const item of originalOrder.items) {
-            await MenuItem.findByIdAndUpdate(item.menuItemId,inventory >= cantidad, { $inc: { inventory: +item.cantidad } });
+            await MenuItem.findByIdAndUpdate(item.menuItemId, { $inc: { inventory: +item.cantidad } });
         }
         for (const item of updatedData.items) {
-            await MenuItem.findByIdAndUpdate(item.menuItemId, inventory >= cantidad,{ $inc: { inventory: -item.cantidad } });
+            await MenuItem.findByIdAndUpdate(item.menuItemId, { $inc: { inventory: -item.cantidad } });
         }
         
         const updatedOrder = await Order.findByIdAndUpdate(req.params.id, updatedData, { new: true });
@@ -279,10 +273,9 @@ app.delete('/api/orders/:id', auth(['mesero']), async (req, res) => {
                 await MenuItem.findByIdAndUpdate(item.menuItemId, { $inc: { inventory: +item.cantidad } });
             }
         }
-        if (orderToDelete.mesaId) {
+        if (orderToDelete.mesaId && !orderToDelete.esPagado) {
             await Table.findByIdAndUpdate(orderToDelete.mesaId, { estado: 'disponible' });
         }
-
         
         await Order.findByIdAndDelete(req.params.id);
         res.status(200).json({ message: 'Pedido eliminado y mesa liberada con éxito.' });
@@ -314,157 +307,22 @@ app.get('/api/reservations/pending-payment', auth(['caja', 'administrador', 'due
         res.status(200).json(pendingReservations);
     } catch (error) { res.status(500).json({ message: 'Error al obtener las reservas pendientes de pago.' }); }
 });
-app.get('/api/reservations/all-active', auth(['dueno', 'administrador']), async (req, res) => {
-    try {
-        const startOfToday = new Date();
-        startOfToday.setHours(0, 0, 0, 0);
-        const activeReservations = await Reservation.find({
-            estadoPago: { $in: ['pendiente', 'confirmado'] },
-            fecha: { $gte: startOfToday } 
-        }).sort({ fecha: 1, hora: 1 });
-        
-        res.status(200).json(activeReservations);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener las reservas activas.', error: error.message });
-    }
-});
 
-app.put('/api/reservations/:id/confirm-payment-with-details', auth(['caja', 'administrador', 'dueno']), async (req, res) => {
-    try {
-        const { montoPagado, comprobantePago, notasCajero } = req.body;
-
-        const updatedReservation = await Reservation.findByIdAndUpdate(
-            req.params.id,
-            { 
-                estadoPago: 'confirmado',
-                montoPagado,
-                comprobantePago,
-                notasCajero
-            },
-            { new: true }
-        );
-
-        if (!updatedReservation) {
-            return res.status(404).json({ message: 'Reserva no encontrada.' });
-        }
-        
-        res.status(200).json({ message: 'Pago de la reserva confirmado con éxito.', reservation: updatedReservation });
-
-    } catch (error) {
-        res.status(400).json({ message: 'Error al confirmar el pago.', error: error.message });
-    }
-});
 // ===========================================
-// RUTAS DE sales (sales)
+// RUTAS DE REPORTES (SALES)
 // ===========================================
 
-// ... (Aquí puedes añadir el resto de tus rutas PUT, GET por ID, etc. para los demás modelos)
-app.get('/api/sales/daily-range', auth(['dueno', 'administrador']), async (req, res) => {
-    try {
-        const { startDate, endDate } = req.query;
-        if (!startDate || !endDate) {
-            return res.status(400).json({ message: 'Se requieren fechas de inicio y fin.' });
-        }
-
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999); // Asegura que se incluya todo el día final
-
-        const salesByDay = await Order.aggregate([
-            {
-                $match: {
-                    createdAt: { $gte: start, $lte: end },
-                    esPagado: true
-                }
-            },
-            {
-                $group: {
-                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-                    totalIncome: { $sum: '$total' },
-                    totalOrders: { $sum: 1 }
-                }
-            },
-            { $sort: { _id: 1 } }
-        ]);
-        
-        res.status(200).json(salesByDay);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el reporte detallado.', error: error.message });
-    }
-});
-app.get('/api/sales/export', auth(['dueno', 'administrador']), async (req, res) => {
-    try {
-        const { startDate, endDate } = req.query;
-        if (!startDate || !endDate) {
-            return res.status(400).json({ message: 'Se requieren fechas de inicio y fin.' });
-        }
-
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-
-        const orders = await Order.find({
-            createdAt: { $gte: start, $lte: end },
-            esPagado: true,
-        }).sort({ createdAt: 1 });
-
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Ventas');
-
-        // Definir columnas y sus encabezados
-        worksheet.columns = [
-            { header: 'Fecha', key: 'date', width: 25 },
-            { header: 'Mesa', key: 'table', width: 15 },
-            { header: 'Items', key: 'items', width: 60 },
-            { header: 'Total (S/)', key: 'total', width: 15 },
-        ];
-
-        // Añadir una fila por cada pedido encontrado
-        orders.forEach(order => {
-            worksheet.addRow({
-                date: new Date(order.createdAt).toLocaleString('es-PE'),
-                table: order.numeroMesa,
-                items: order.items.map(i => `${i.cantidad}x ${i.nombre}`).join(', '),
-                total: order.total.toFixed(2),
-            });
-        });
-
-        // Configurar la respuesta para que el navegador la trate como un archivo de descarga
-        res.setHeader(
-            "Content-Type",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        );
-        res.setHeader(
-            "Content-Disposition",
-            `attachment; filename="reporte_ventas_${startDate}_a_${endDate}.xlsx"`
-        );
-        
-        await workbook.xlsx.write(res);
-        res.end();
-
-    } catch (error) {
-        console.error("Error al exportar a Excel:", error);
-        res.status(500).json({ message: 'Error al exportar el reporte a Excel.' });
-    }
-});
 app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) => {
     try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-
-        const paidOrders = await Order.find({
-            createdAt: { $gte: today },
-            esPagado: true
-        });
-
+        const paidOrders = await Order.find({ createdAt: { $gte: today }, esPagado: true });
         const confirmedReservations = await Reservation.find({
-            updatedAt: { $gte: today }, // Usamos updatedAt para saber cuándo se confirmó el pago
+            updatedAt: { $gte: today },
             estadoPago: 'confirmado',
         });
-
         const incomeFromOrders = paidOrders.reduce((sum, order) => sum + order.total, 0);
         const incomeFromReservations = confirmedReservations.reduce((sum, res) => sum + res.montoPagado, 0);
-
         res.status(200).json({
             totalOrders: paidOrders.length,
             incomeFromOrders,
@@ -472,14 +330,13 @@ app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) =
             incomeFromReservations,
             totalIncome: incomeFromOrders + incomeFromReservations
         });
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el resumen de ventas.', error: error.message });
-    }
+    } catch (error) { res.status(500).json({ message: 'Error al obtener el resumen de ventas.' }); }
 });
-/////////////////////////////////////////////////
+
 // ===========================================
 // HANDLER FINAL PARA VERCEL
 // ===========================================
+
 export default async function handler(req, res) {
   await connectDB();
   return app(req, res);
