@@ -44,7 +44,6 @@ app.post('/api/login', async (req, res) => {
 // RUTAS PROTEGIDAS (Requieren Token a partir de aquí)
 // ===========================================
 
-app.use(auth()); // Middleware de autenticación global para todas las rutas de abajo
 
 // --- Rutas de Mesero ---
 app.get('/api/users', auth(['dueno', 'administrador']), async (req, res) => {
