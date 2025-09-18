@@ -333,6 +333,39 @@ app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) =
     } catch (error) { res.status(500).json({ message: 'Error al obtener el resumen de ventas.' }); }
 });
 
+app.get('/api/sales/daily-range', auth(['dueno', 'administrador']), async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        if (!startDate || !endDate) {
+            return res.status(400).json({ message: 'Se requieren fechas de inicio y fin.' });
+        }
+
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); // Asegura que se incluya todo el día final
+
+        const salesByDay = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: start, $lte: end },
+                    esPagado: true
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    totalIncome: { $sum: '$total' },
+                    totalOrders: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+        
+        res.status(200).json(salesByDay);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener el reporte detallado.', error: error.message });
+    }
+});
 // ===========================================
 // HANDLER FINAL PARA VERCEL
 // ===========================================
