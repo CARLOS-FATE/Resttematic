@@ -307,6 +307,17 @@ app.get('/api/reservations/pending-payment', auth(['caja', 'administrador', 'due
         res.status(200).json(pendingReservations);
     } catch (error) { res.status(500).json({ message: 'Error al obtener las reservas pendientes de pago.' }); }
 });
+app.get('/api/reservations/all-active', auth(['administrador', 'dueno']), async (req, res) => {
+    try {
+        const activeReservations = await Reservation.find({
+            estadoPago: { $in: ['pendiente', 'confirmado'] },
+            fecha: { $gte: new Date().setHours(0, 0, 0, 0) }
+        }).sort({ fecha: 1, hora: 1 });
+        res.status(200).json(activeReservations);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener las reservas activas.' });
+    }
+});
 
 // ===========================================
 // RUTAS DE REPORTES (SALES)
