@@ -7,7 +7,6 @@ import jwt from 'jsonwebtoken';
 import ExcelJS from 'exceljs';
 import auth from './auth.js';
 import { connectDB } from './mongoose.js';
-import serverless from 'serverless-http';
 
 // Importa los modelos
 import MenuItem from './models/MenuItem.js';
@@ -20,7 +19,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 // Conexión a la base de datos
-connectDB();
 
 // ===========================================
 // RUTAS DE LOGIN Y USUARIOS
@@ -35,19 +33,20 @@ app.post('/api/login', async (req, res) => {
         }
         const payload = { user: { id: user.id, role: user.role } };
         const secret = process.env.JWT_SECRET;
-        if (!secret) {
-        return res.status(500).json({ message: 'JWT_SECRET no está configurado en el servidor.' });
-        }
         jwt.sign(payload, secret, { expiresIn: '8h' }, (err, token) => {
             if (err) throw err;
             res.json({ token, user: { id: user.id, role: user.role, name: user.name } });
         });
-    } catch (error) {
-        console.error("Login Error:", error);
-        res.status(500).json({ message: 'Error del servidor en login.' });
-    }
+    } catch (error) { res.status(500).json({ message: 'Error del servidor en login.' }); }
 });
 
+// ===========================================
+// RUTAS PROTEGIDAS (Requieren Token a partir de aquí)
+// ===========================================
+
+app.use(auth()); // Middleware de autenticación global para todas las rutas de abajo
+
+// --- Rutas de Mesero ---
 app.get('/api/users', auth(['dueno', 'administrador']), async (req, res) => {
     try {
         const users = await User.find().select('-password');
@@ -478,7 +477,7 @@ app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) =
 // ===========================================
 // HANDLER FINAL PARA VERCEL
 // ===========================================
-const handler = serverless(app);
-
-// Exporta la función handler para que Vercel la pueda invocar directamente.
-export default handler;
+export default async function handler(req, res) {
+  await connectDB();
+  return app(req, res);
+}
