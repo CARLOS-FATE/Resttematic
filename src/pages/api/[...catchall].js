@@ -24,6 +24,7 @@ app.use(express.json());
 // RUTAS DE LOGIN Y USUARIOS
 // ============================================
 
+
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -37,7 +38,10 @@ app.post('/api/login', async (req, res) => {
             if (err) throw err;
             res.json({ token, user: { id: user.id, role: user.role, name: user.name } });
         });
-    } catch (error) { res.status(500).json({ message: 'Error del servidor en login.' }); }
+    } catch (error) {
+        console.error("Login Error:", error);
+        res.status(500).json({ message: 'Error del servidor en login.' });
+    }
 });
 
 // ===========================================
