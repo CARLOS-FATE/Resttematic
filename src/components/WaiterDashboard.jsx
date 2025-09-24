@@ -241,11 +241,21 @@ useEffect(() => {
                                 return (
                                     <button
                                         key={table._id}
-                                        onClick={() => toggleTableStatus(table._id, table.estado)}
-                                        // El botón se deshabilita si está ocupada o reservada
-                                        disabled={table.estado === 'ocupada' || !!reservationForTable}
+                                        onClick={() => {
+                                            if (table.estado === 'ocupada') {
+                                                if (window.confirm(`¿Estás seguro de que quieres liberar manualmente la ${table.nombre}? Úsalo solo si la mesa está realmente vacía.`)) {
+                                                    toggleTableStatus(table._id, 'ocupada'); // Forzamos el cambio a 'disponible'
+                                                }
+                                            }
+                                        }}
+
+                                        disabled={table.estado !== 'ocupada' || !!reservationForTable}
                                         className={`p-4 rounded-lg text-white font-bold text-center transition ${buttonClass}`}
-                                        title={reservationForTable ? `Reservada para ${reservationForTable.nombreCliente} a las ${reservationForTable.hora}` : `Mesa ${table.estado}`}
+                                        title={
+                                            reservationForTable ? `Reservada para ${reservationForTable.nombreCliente}` :
+                                            table.estado === 'ocupada' ? `Clic para liberar manualmente` :
+                                            `Mesa ${table.estado}`
+                                        }
                                     >
                                         <p className="text-xl">{table.nombre}</p>
                                         <p className="text-sm capitalize">{status}</p>
