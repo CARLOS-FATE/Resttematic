@@ -1,4 +1,4 @@
-// Archivo: electrical-event/api/[...catchall].js (Versión Final, Completa y Corregida)
+// Archivo: electrical-event/api/[...catchall].js 
 
 import express from 'express';
 import cors from 'cors';
@@ -177,7 +177,14 @@ app.delete('/api/tables/:id', auth(['administrador', 'dueno']), async (req, res)
         res.status(200).json({ message: 'Mesa eliminada con éxito.' });
     } catch (error) { res.status(500).json({ message: 'Error al eliminar la mesa.' }); }
 });
-
+app.get('/api/tables/public', async (req, res) => {
+    try {
+        const tables = await Table.find().sort({ nombre: 1 });
+        res.status(200).json(tables);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener las mesas.', error: error.message });
+    }
+});
 // ===========================================
 // RUTAS DE PEDIDOS (ORDERS)
 // ===========================================
@@ -318,6 +325,61 @@ app.get('/api/reservations/all-active', auth(['administrador', 'dueno']), async 
         res.status(500).json({ message: 'Error al obtener las reservas activas.' });
     }
 });
+app.post('/api/reservations', async (req, res) => {
+    try {
+        // 1. Extraemos todos los datos del formulario que vienen en el body
+        const { nombreCliente, email, telefono, fecha, hora, numeroPersonas, mesaId } = req.body;
+        
+        // 2. Validación simple para asegurar que se seleccionó una mesa
+        if (!mesaId) {
+            return res.status(400).json({ message: "Por favor, selecciona una mesa." });
+        }
+
+        // 3. Lógica para comprobar si la mesa ya está reservada en ese horario
+        const duracionReservaHoras = 2;
+        const fechaInicio = new Date(`${fecha}T${hora}:00`);
+        const fechaFin = new Date(fechaInicio.getTime() + duracionReservaHoras * 60 * 60 * 1000);
+
+        const reservasConflictivas = await Reservation.find({
+            mesaId: mesaId,
+            estadoPago: { $in: ['pendiente', 'confirmado'] },
+            fecha: {
+                $gte: new Date(fecha).setHours(0, 0, 0, 0),
+                $lt: new Date(fecha).setHours(23, 59, 59, 999)
+            },
+        });
+
+        const haySolapamiento = reservasConflictivas.some(reservaExistente => {
+            const inicioExistente = new Date(`${new Date(reservaExistente.fecha).toISOString().split('T')[0]}T${reservaExistente.hora}:00`);
+            const finExistente = new Date(inicioExistente.getTime() + duracionReservaHoras * 60 * 60 * 1000);
+            return fechaInicio < finExistente && fechaFin > inicioExistente;
+        });
+
+        if (haySolapamiento) {
+            return res.status(400).json({ message: 'Lo sentimos, esta mesa ya está reservada para ese horario.' });
+        }
+        
+        // 4. Creamos la nueva reserva con todos los datos
+        const newReservation = new Reservation({
+            nombreCliente,
+            email,
+            telefono,
+            fecha,
+            hora,
+            numeroPersonas,
+            mesaId
+        });
+        
+        // 5. Guardamos en la base de datos y respondemos al cliente
+        await newReservation.save();
+        res.status(201).json({ message: '¡Reserva creada con éxito! Nos pondremos en contacto para confirmar el pago.', reservation: newReservation });
+
+    } catch (error) {
+        // Si hay algún otro error (ej. de validación del modelo), lo capturamos aquí
+        res.status(400).json({ message: 'Error al procesar la reserva.', error: error.message });
+    }
+});
+
 
 // ===========================================
 // RUTAS DE REPORTES (SALES)
