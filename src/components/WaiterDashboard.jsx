@@ -19,16 +19,15 @@ const WaiterDashboard = ({ userRole }) => {
     const [editingOrder, setEditingOrder] = useState(null);
     const [filterCategory, setFilterCategory] = useState('');
 
-    // --- NUEVOS ESTADOS PARA MESAS Y RESERVAS ---
+    // NUEVOS ESTADOS PARA MESAS Y RESERVAS
     const [tables, setTables] = useState([]);
     const [reservations, setReservations] = useState([]);
-    const [view, setView] = useState('tables', 'orders', 'menu'); // 'tables', 'orders', 'menu'
+    const [view, setView] = useState('tables');
 
   if (!auth) {
     return <p className="p-8 text-center text-gray-500">Inicializando...</p>;
   }
 const { token, authHeader } = auth;
-  // Optimizamos fetchOrders con useCallback, dependiendo del objeto 'auth'
   const fetchOrders = useCallback(async () => {
     if (!auth?.token) return;
      try {
@@ -376,7 +375,7 @@ useEffect(() => {
                             </tbody>
                         </table>
                     </div>
-                    {editingOrder && <EditOrderForm order={editingOrder} onUpdate={() => { fetchOrders(); setEditingOrder(null); }} onClose={() => setEditingOrder(null)} menuItems={menuItems} authHeader={authHeader} />}
+                    {editingOrder && <EditOrderForm order={editingOrder} onUpdate={() => { fetchOrders(); setEditingOrder(null); }} onClose={() => setEditingOrder(null)} menuItems={menuItems} authHeader={authHeader} tables={tables}/>}
                 </section>
             </>
         )}
