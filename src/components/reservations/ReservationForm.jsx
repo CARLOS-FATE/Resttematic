@@ -13,23 +13,31 @@ const ReservationForm = () => {
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [tables, setTables] = useState([]);
+     const [availableTables, setAvailableTables] = useState([]);
+
 
     useEffect(() => {
-        const fetchAllTables = async () => {
-            try {
-                // Nota: Esta ruta debe ser pública o no requerir autenticación
-                const response = await fetch('/api/tables/public'); 
-                if (!response.ok) throw new Error('No se pudo cargar la lista de mesas.');
-                const data = await response.json();
-                setTables(data);
-            } catch (err) {
-                // No mostramos este error al usuario, pero lo logueamos
-                console.error("Error al cargar mesas:", err.message);
+        const fetchAvailableTables = async () => {
+            if (formData.fecha && formData.hora) {
+                try {
+                    const response = await fetch(`/api/tables/available?fecha=${formData.fecha}&hora=${formData.hora}`);
+                    if (!response.ok) throw new Error('No se pudo verificar la disponibilidad de mesas.');
+                    
+                    const data = await response.json();
+                    
+                    setAvailableTables(data);
+                } catch (err) {
+                    console.error("Error al cargar mesas disponibles:", err.message);
+                    setAvailableTables([]); 
+                }
+            } else {
+                
+                setAvailableTables([]);
             }
         };
-        fetchAllTables();
-    }, []);
+
+        fetchAvailableTables();
+    }, [formData.fecha, formData.hora]);
 
 const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,8 +70,11 @@ const handleSubmit = async (e) => {
     const handleChange = (e) => {
         const { name, value, type } = e.target;
         const processedValue = type === 'range' ? parseInt(value, 10) : value;
-
-    setFormData({ ...formData, [name]: processedValue });
+        if (name === 'fecha' || name === 'hora') {
+             setFormData({ ...formData, [name]: processedValue, mesaId: '' });
+        } else {
+             setFormData({ ...formData, [name]: processedValue });
+        }
     };
 
     return (
@@ -97,7 +108,7 @@ const handleSubmit = async (e) => {
                         required
                     >
                         <option value="">-- Ver mesas disponibles --</option>
-                        {tables
+                        {availableTables
                             .filter(table => table.capacidad >= formData.numeroPersonas)
                             .map(table => (
                                 <option key={table._id} value={table._id}>
