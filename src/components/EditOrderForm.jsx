@@ -1,10 +1,14 @@
   // EditOrderForm.jsx
   import React, { useState } from 'react';
 
-const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader }) => {
+const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables }) => {
   const [editedTableNumber, setEditedTableNumber] = useState(order.numeroMesa);
   const [editedItems, setEditedItems] = useState(order.items.map(item => ({ ...item })));
 
+  const selectableTables = tables.filter(
+    table => table.estado === 'disponible' || table.nombre === order.numeroMesa
+  );
+  
   const handleUpdate = async (e) => {
     e.preventDefault();
     const newTotal = editedItems.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
