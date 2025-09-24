@@ -4,7 +4,25 @@ import React, { useState, useEffect, useCallback } from 'react';
 import EditOrderForm from './EditOrderForm.jsx';
 import { useAuth } from './AuthContext.client.jsx';
 
-
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center">
+            <div className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-sm mx-4">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">{title}</h3>
+                <div className="text-gray-600 mb-6">{children}</div>
+                <div className="flex justify-end gap-4">
+                    <button onClick={onClose} className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 font-semibold transition">
+                        Cancelar
+                    </button>
+                    <button onClick={onConfirm} className="px-4 py-2 rounded-md bg-orange-500 text-white hover:bg-orange-600 font-semibold transition">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const WaiterDashboard = ({ userRole }) => {
   // 1. Obtenemos el contexto completo. En el primer render será 'null'.
@@ -23,6 +41,9 @@ const WaiterDashboard = ({ userRole }) => {
     const [tables, setTables] = useState([]);
     const [reservations, setReservations] = useState([]);
     const [view, setView] = useState('tables');
+
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [tableToFree, setTableToFree] = useState(null);
 
   if (!auth) {
     return <p className="p-8 text-center text-gray-500">Inicializando...</p>;
@@ -190,6 +211,23 @@ useEffect(() => {
   const getCategories = () => {
     return [...new Set(menuItems.map(item => item.categoria))];
   };
+ const handleOpenConfirmModal = (table) => {
+        setTableToFree(table);
+        setIsConfirmModalOpen(true);
+    };
+
+    const handleCloseConfirmModal = () => {
+        setTableToFree(null);
+        setIsConfirmModalOpen(false);
+    };
+
+    const handleConfirmFreeTable = () => {
+        if (tableToFree) {
+            toggleTableStatus(tableToFree._id, 'ocupada');
+        }
+        handleCloseConfirmModal();
+    };
+
 
   const filteredMenuItems = menuItems.filter(item => item.categoria === filterCategory);
      if (!token) {
