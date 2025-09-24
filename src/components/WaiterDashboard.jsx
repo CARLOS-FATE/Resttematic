@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import EditOrderForm from './EditOrderForm.jsx';
 import { useAuth } from './AuthContext.client.jsx';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/solid';
 
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children }) => {
     if (!isOpen) return null;
@@ -415,8 +416,20 @@ useEffect(() => {
                                         </td>
                                         <td className="p-2">S/. {order.total.toFixed(2)}</td>
                                         <td className="p-2 space-x-2">
-                                            <button onClick={() => handleEditOrder(order)} className="text-blue-500 hover:text-blue-700">Editar</button>
-                                            <button onClick={() => handleDeleteOrder(order._id)} className="text-red-500 hover:text-red-700">Eliminar</button>
+                                            <button 
+                                                onClick={() => handleEditOrder(order)} 
+                                                className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                                            >
+                                                <PencilSquareIcon className="h-5 w-5 mr-1" />
+                                                <span>Editar</span>
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteOrder(order._id)} 
+                                                className="flex items-center text-red-600 hover:text-red-800 transition-colors"
+                                            >
+                                                <TrashIcon className="h-5 w-5 mr-1" />
+                                                <span>Eliminar</span>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
