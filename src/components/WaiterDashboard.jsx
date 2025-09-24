@@ -234,6 +234,7 @@ useEffect(() => {
     return <p className="p-8 text-center text-gray-500 text-lg">Cargando autenticación...</p>;
   }
   return (
+    <>
     <div className="container mx-auto p-4">
         <h1 className="text-4xl font-bold mb-6 text-center">Dashboard del Mesero</h1>
         
@@ -281,9 +282,7 @@ useEffect(() => {
                                         key={table._id}
                                         onClick={() => {
                                             if (table.estado === 'ocupada') {
-                                                if (window.confirm(`¿Estás seguro de que quieres liberar manualmente la ${table.nombre}? Úsalo solo si la mesa está realmente vacía.`)) {
-                                                    toggleTableStatus(table._id, 'ocupada'); // Forzamos el cambio a 'disponible'
-                                                }
+                                                            handleOpenConfirmModal(table);
                                             }
                                         }}
 
@@ -452,6 +451,18 @@ useEffect(() => {
             </section>
         )}
     </div>
+    <ConfirmationModal
+            isOpen={isConfirmModalOpen}
+            onClose={handleCloseConfirmModal}
+            onConfirm={handleConfirmFreeTable}
+            title="Confirmar Liberación"
+        >
+            ¿Estás seguro de que quieres liberar manualmente la <strong>{tableToFree?.nombre}</strong>?
+            <br />
+            <span className="text-sm text-gray-500">Usa esta opción solo si la mesa está realmente vacía.</span>
+        </ConfirmationModal>
+
+    </>
 );
 };
 
