@@ -44,7 +44,7 @@ const handleSubmit = async (e) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData),
-        });N
+        });
         const resData = await response.json();
         if (!response.ok) {
             throw new Error(resData.message || 'No se pudo crear la reserva. Inténtelo más tarde.');

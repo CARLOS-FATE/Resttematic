@@ -142,6 +142,43 @@ app.get('/api/tables', auth(['mesero', 'administrador', 'dueno']), async (req, r
         res.status(200).json(tables);
     } catch (error) { res.status(500).json({ message: 'Error al obtener las mesas.' }); }
 });
+app.get('/api/tables/available', async (req, res) => {
+  try {
+    const { fecha, hora } = req.query;
+    if (!fecha || !hora) {
+      return res.status(400).json({ message: 'Se requieren la fecha y la hora para verificar la disponibilidad.' });
+    }
+    const fechaInicioNueva = new Date(`${fecha}T${hora}:00`);
+    const fechaFinNueva = new Date(fechaInicioNueva.getTime() + 2 * 60 * 60 * 1000);
+
+    const reservasConflictivas = await Reservation.find({
+        estadoPago: { $in: ['pendiente', 'confirmado'] },
+        fecha: {
+             $gte: new Date(fecha).setHours(0, 0, 0, 0),
+             $lt: new Date(fecha).setHours(23, 59, 59, 999)
+        },
+    });
+
+    const occupiedTableIds = new Set();
+    reservasConflictivas.forEach(reserva => {
+        const inicioExistente = new Date(`${new Date(reserva.fecha).toISOString().split('T')[0]}T${reserva.hora}:00`);
+        const finExistente = new Date(inicioExistente.getTime() + 2 * 60 * 60 * 1000);
+
+        if (fechaInicioNueva < finExistente && fechaFinNueva > inicioExistente) {
+            occupiedTableIds.add(reserva.mesaId.toString());
+        }
+    });
+
+    const availableTables = await Table.find({
+      _id: { $nin: Array.from(occupiedTableIds) }
+    }).sort({ nombre: 1 });
+
+    res.status(200).json(availableTables);
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener mesas disponibles.', error: error.message });
+  }
+});
 
 app.post('/api/tables', auth(['administrador', 'dueno']), async (req, res) => {
     try {
@@ -272,20 +309,20 @@ app.put('/api/orders/:id/paid', auth(['caja']), async (req, res) => {
 
 app.delete('/api/orders/:id', auth(['mesero']), async (req, res) => {
     try {
-        const orderToDelete = await Order.findById(req.params.id);
-        if (!orderToDelete) return res.status(404).json({ message: 'Pedido no encontrado.' });
-        
-        if (!orderToDelete.esPagado) {
-            for (const item of orderToDelete.items) {
-                await MenuItem.findByIdAndUpdate(item.menuItemId, { $inc: { inventory: +item.cantidad } });
-            }
-        }
-        if (orderToDelete.mesaId && !orderToDelete.esPagado) {
-            await Table.findByIdAndUpdate(orderToDelete.mesaId, { estado: 'disponible' });
-        }
-        
-        await Order.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: 'Pedido eliminado y mesa liberada con éxito.' });
+        const orderToDelete = await Order.findById(req.params.id);
+        if (!orderToDelete) return res.status(404).json({ message: 'Pedido no encontrado.' });
+        
+        if (!orderToDelete.esPagado) {
+            for (const item of orderToDelete.items) {
+                await MenuItem.findByIdAndUpdate(item.menuItemId, { $inc: { inventory: +item.cantidad } });
+            }
+        }
+        if (orderToDelete.mesaId && !orderToDelete.esPagado) {
+            await Table.findByIdAndUpdate(orderToDelete.mesaId, { estado: 'disponible' });
+        }
+        
+        await Order.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: 'Pedido eliminado y mesa liberada con éxito.' });
     } catch (error) { res.status(500).json({ message: 'Error al eliminar el pedido.' }); }
 });
 

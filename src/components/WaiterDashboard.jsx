@@ -173,6 +173,7 @@ useEffect(() => {
       if (!response.ok) throw new Error('Error al eliminar el pedido.');
       setSuccess('¡Pedido eliminado con éxito!');
       fetchOrders();
+      fetchTables();
     } catch (err) { setError(err.message); }
   };
   
