@@ -12,10 +12,13 @@ const {
   description = 'Vive una experiencia única en Van Gogh, restaurante en Huamachuco con auténtica comida peruana y un ambiente artístico inspirado en el genio del postimpresionismo.',
 	keywords = 'restaurante Van Gogh Huamachuco, comida peruana tradicional, restaurante temático en Perú, experiencia gastronómica artística, mejor restaurante en Huamachuco, cocina peruana gourmet' 
 } = Astro.props;
+
+const siteURL = new URL(Astro.url.pathname, "https://www.vangoghfusionsetcafe.com");
+
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es"  class="scroll-smooth">
 	<head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,19 +26,17 @@ const {
 		 <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="keywords" content={keywords} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
 
+    <meta name="author" content="Restaurante Van Gogh" /> <meta name="publisher" content="Restaurante Van Gogh" /> <meta name="robots" content="index, follow" /> <link rel="canonical" href={siteURL} /> <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url} />
-    <meta property="og:image" content="/placeholder-social.jpg" /> <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:url" content={siteURL} /> <meta property="og:image" content={new URL('/placeholder-social.jpg', siteURL)} /> <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content="/placeholder-social.jpg" />
-	<link rel="preconnect" href="https://fonts.googleapis.com">
+    <meta name="twitter:image" content={new URL('/placeholder-social.jpg', siteURL)} /> <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
-	</head>
+</head>
 	<body>
 		<slot />
 	</body>
