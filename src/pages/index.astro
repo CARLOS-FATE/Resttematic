@@ -5,6 +5,7 @@ import Footer from '../components/Footer.astro';
 import ImageCarousel from '../components/ImageCarousel.jsx';
 import { works } from '../data/paintings.jsx';
 import ReservationForm from '../components/reservations/ReservationForm.jsx';
+import Layout from '../layouts/Layout.astro';
 
 const menuItems = [
   {
@@ -27,7 +28,12 @@ const menuItems = [
   }
 ];
 ---
-
+<Layout 
+  title="Restaurante Van Gogh – Comida Peruana en Huamachuco" 
+  description="Vive una experiencia única en Van Gogh, restaurante en Huamachuco con auténtica comida peruana y un ambiente artístico inspirado en el genio del postimpresionismo.",
+  keywords="restaurante Van Gogh Huamachuco, comida peruana tradicional, restaurante temático en Perú, experiencia gastronómica artística, mejor restaurante en Huamachuco, cocina peruana gourmet"
+  >
+</Layout>
 <!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
 <head>
