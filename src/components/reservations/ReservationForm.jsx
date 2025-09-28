@@ -78,7 +78,7 @@ const handleSubmit = async (e) => {
     };
 
     return (
-        <div className="bg-[#122a51] p-8 rounded-lg shadow-xl">
+        <div className="bg-[#122a51] p-8 rounded-lg shadow-xl text-white">
             <h3 className="text-3xl font-bold text-yellow-300 mb-4">Haz tu Reservación</h3>
             <p className="mb-6 text-gray-300">Asegura tu mesa. Las reservas requieren un pequeño pago por adelantado.</p>
             
