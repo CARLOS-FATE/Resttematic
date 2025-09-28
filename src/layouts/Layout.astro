@@ -13,26 +13,7 @@ const {
 	keywords = 'restaurante Van Gogh Huamachuco, comida peruana tradicional, restaurante temático en Perú, experiencia gastronómica artística, mejor restaurante en Huamachuco, cocina peruana gourmet' 
 } = Astro.props;
 ---
-<Layout 
-  title="Restaurante Van Gogh – Comida Peruana en Huamachuco" 
-  description="Vive una experiencia única en Van Gogh, restaurante en Huamachuco con auténtica comida peruana y un ambiente artístico inspirado en el genio del postimpresionismo."
-  keywords="restaurante Van Gogh Huamachuco, comida peruana tradicional, restaurante temático en Perú, experiencia gastronómica artística, mejor restaurante en Huamachuco, cocina peruana gourmet"
->
-  <main class="container mx-auto px-4 py-8">
-    <section class="text-center">
-      
-      <h1 class="text-4xl font-bold mb-4">
-        Restaurante Van Gogh Huamachuco
-      </h1>
-      
-      <p class="text-lg max-w-3xl mx-auto">
-        Bienvenido a Van Gogh Restaurante, un rincón gastronómico en el corazón de Huamachuco, Perú, donde la comida peruana tradicional se fusiona con el arte y la creatividad. Inspirado en la obra y el universo del genio postimpresionista Vincent van Gogh, nuestro restaurante ofrece una experiencia única que estimula todos los sentidos. Cada plato está elaborado con ingredientes frescos y sabores auténticos, en un ambiente artístico cuidadosamente diseñado para transportarte a un mundo de color, sabor e inspiración. Descubre la magia de la gastronomía peruana en un espacio donde el arte y la cocina se unen para crear momentos inolvidables.
-      </p>
 
-    </section>
-
-    </main>
-</Layout>
 <!doctype html>
 <html lang="en">
 	<head>
@@ -48,6 +29,9 @@ const {
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content="/placeholder-social.jpg" />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 	</head>
 	<body>
 		<slot />
