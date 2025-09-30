@@ -9,29 +9,46 @@ import Layout from '../layouts/Layout.astro';
 
 const menuItems = [
   {
-    name: "Risotto 'Los Girasoles'",
-    description: "Cremoso risotto de azafrán y parmesano, decorado con flores comestibles.",
-    image: "/plato-girasoles.jpg",
-    price: "S/. 22"
+    name: "Desayunos",
+    description: "Empieza tu día con la inspiración de un nuevo lienzo. Nuestros desayunos están diseñados para despertar tus sentidos.",
+    image: "/Desayunos.png",
+    price: "desde S/. 16",
+    slug: "desayunos"
   },
   {
-    name: "Solomillo 'Noche Estrellada'",
-    description: "Medallón de solomillo sobre un espejo de salsa de vino tinto y arándanos.",
-    image: "/plato-solomillo.jpg",
-    price: "S/. 35"
+    name: "Almuerzos",
+    description: "Una pausa al mediodía llena de sabor y color. Platos frescos y contundentes para recargar tu energía creativa.",
+    image: "/Almuerzos.png",
+    price: "desde S/. 19",
+    slug: "almuerzos"
   },
   {
-    name: "Tártaro 'El Viñedo Rojo'",
-    description: "Tártaro de atún rojo fresco con aguacate y un toque de cítricos.",
-    image: "/plato-tartaro.png",
-    price: "S/. 18"
+    name: "Cenas",
+    description: "Bajo la noche estrellada, cada plato es una obra de arte. La experiencia perfecta para una velada inolvidable.",
+    image: "/Cenas.png",
+    price: "desde S/. 22",
+    slug: "cenas"
+  },
+  {
+    name: "Postres",
+    description: "El dulce trazo final para tu paladar. Creaciones únicas que combinan la tradición con un toque de genialidad.",
+    image: "/Postres.png",
+    price: "desde S/. 14",
+     slug: "postres"
+  },
+  {
+    name: "Bebidas",
+    description: "Desde un café intenso hasta un vino con carácter. El acompañamiento perfecto para cada momento de tu visita.",
+    image: "/Bebidas.png",
+    price: "desde S/. 7",
+    slug: "bebidas"
   }
 ];
 ---
 <Layout 
   title="Restaurante Van Gogh – Comida Peruana en Huamachuco" 
   description="Vive una experiencia única en Van Gogh, restaurante en Huamachuco con auténtica comida peruana y un ambiente artístico inspirado en el genio del postimpresionismo.",
-  keywords="restaurante Van Gogh Huamachuco, comida peruana tradicional, restaurante temático en Perú, experiencia gastronómica artística, mejor restaurante en Huamachuco, cocina peruana gourmet"
+  keywords="Restaurante Van Gogh Huamachuco, comida peruana tradicional, restaurante temático en Perú, experiencia gastronómica artística, mejor restaurante en Huamachuco, cocina peruana gourmet"
   >
 </Layout>
 <!DOCTYPE html>
@@ -75,18 +92,18 @@ const menuItems = [
             </div>
         </section>
 
-        <section id="menu" class="py-20 container mx-auto px-4">
+        <section id="cartas" class="py-20 container mx-auto px-4">
             <h2 class="text-5xl font-semibold mb-12 text-center text-yellow-300">Nuestra Galería de Sabores</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
                 {menuItems.map(item => (
-                    <div class="bg-[#122a51] rounded-lg shadow-xl overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
+                    <a href={`/cartas/${item.slug}`} class="block bg-[#122a51] rounded-lg shadow-xl overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
                         <img src={item.image} alt={item.name} class="w-full h-64 object-cover">
                         <div class="p-6">
                             <h3 class="text-2xl font-bold text-yellow-300 mb-2">{item.name}</h3>
                             <p class="text-gray-300 mb-4">{item.description}</p>
                             <div class="text-right text-2xl font-bold text-yellow-400">{item.price}</div>
                         </div>
-                    </div>
+                    </a>
                 ))}
             </div>
         </section>
