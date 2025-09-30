@@ -99,8 +99,12 @@ const siteURL = new URL(Astro.url.pathname, "https://www.vangoghfusionsetcafe.co
 <style>
 	html,
 	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+		font-family: 'Lato', sans-serif;
+        background-image: url('/canvas-texture.png');
+        background-color: #0b1a33;
+        color: theme('colors.gray.200'); /* Aplicamos el color de texto base aquí */
+      }
+      h1, h2, h3, h4, h5, h6 {
+        font-family: 'Playfair Display', serif;
+      }
 </style>
