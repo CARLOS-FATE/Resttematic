@@ -37,7 +37,8 @@ const ReceiptModal = ({ order, documentType, onClose }) => {
             <span>Mesa: {order.numeroMesa}</span>
           </div>
         </div>
-
+  
+  
         {/* Detalle de items */}
         <table className="w-full text-sm mb-4">
           <thead>
