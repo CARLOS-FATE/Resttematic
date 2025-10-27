@@ -13,11 +13,11 @@ const hasHalfStar = rating % 1 !== 0;
 const emptyStars = totalStars - fullStars - (hasHalfStar ? 1 : 0);
 
 // Icono SVG para una estrella (puedes estilizarlo como quieras)
-const StarIcon = (
+const StarIcon = `
   <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
     <path d="M10 15l-5.878 3.09 1.123-6.545L.489 7.09l6.572-.955L10 0l2.939 6.135 6.572.955-4.756 4.455 1.123 6.545z"/>
   </svg>
-);
+`;
 ---
 <div class="flex items-center text-yellow-400">
   {Array(fullStars).fill(0).map(() => (
