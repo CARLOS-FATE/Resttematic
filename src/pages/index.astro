@@ -42,7 +42,7 @@ const checkIcon = `
   			</div>
   		</section>
 
-              		<section id="bienvenida" class="py-20 bg-black bg-opacity-20 text-white overflow-hidden">
+            <section id="bienvenida" class="py-20 bg-black bg-opacity-20 text-white overflow-hidden js-scroll-animate opacity-0 translate-y-10 transition-all duration-700 ease-in-out">
             <div class="container mx-auto px-4">
               
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -95,7 +95,7 @@ const checkIcon = `
             </div>
           </section>
 
-		  		<section id="cartas" class="py-20 container mx-auto px-4">
+		  		<section id="cartas" class="py-20 container mx-auto px-4 js-scroll-animate opacity-0 translate-y-10 transition-all duration-700 ease-in-out">
   			<h2 class="text-5xl font-semibold mb-12 text-center text-yellow-300">Nuestra Galería de Sabores</h2>
   			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
   				{menuItems.map(item => (
@@ -111,7 +111,7 @@ const checkIcon = `
   			</div>
   		</section>
 
-		  		<section id="filosofia" class="py-20 bg-black bg-opacity-20">
+		  		<section id="filosofia" class="py-20 bg-black bg-opacity-20 js-scroll-animate opacity-0 translate-y-10 transition-all duration-700 ease-in-out">
 			<div class="container mx-auto px-4 flex flex-col lg:flex-row items-center gap-12">
 				<div class="lg:w-1/2 text-white">
 					<h2 class="text-4xl font-semibold mb-6 text-yellow-300">Inspirados por un Genio</h2>
@@ -136,7 +136,7 @@ const checkIcon = `
 			</div>
   		</section>
 
-		  		<section id="reseñas" class="py-20 container mx-auto px-4">
+		  		<section id="reseñas" class="py-20 container mx-auto px-4 js-scroll-animate opacity-0 translate-y-10 transition-all duration-700 ease-in-out">
   			<h2 class="text-5xl font-semibold mb-12 text-center text-yellow-300">Lo que dicen nuestros Clientes</h2>
   			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
   				{reviews.map(review => (
@@ -155,7 +155,7 @@ const checkIcon = `
   			</div>
   		</section>
 
-		  		<section id="reservar" class="py-20 container mx-auto px-4">
+		  		<section id="reservar" class="py-20 container mx-auto px-4 js-scroll-animate opacity-0 translate-y-10 transition-all duration-700 ease-in-out">
   			<h2 id="contacto" class="text-5xl font-semibold mb-12 text-center text-yellow-300">Visítanos</h2>
   			<div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
   				<ReservationForm client:load />
@@ -187,4 +187,30 @@ const checkIcon = `
   	</main>
   
   	<Footer />
+<script>
+
+		const observerOptions = {
+			root: null, 
+			rootMargin: '0px',
+			threshold: 0.1 
+		};
+
+		const observerCallback = (entries, observer) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					entry.target.classList.remove('opacity-0', 'translate-y-10');
+					
+					observer.unobserve(entry.target);
+				}
+			});
+		};
+
+		const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+		const elementsToAnimate = document.querySelectorAll('.js-scroll-animate');
+		
+		elementsToAnimate.forEach(element => {
+			observer.observe(element);
+		});
+	</script>
 </Layout>
