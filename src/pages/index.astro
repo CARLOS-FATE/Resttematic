@@ -24,81 +24,76 @@ const checkIcon = `
 	  	<Header />
 
   	<main>
-		  		<section id="bienvenida" class="py-20 bg-black bg-opacity-20 text-white overflow-hidden">
-    <div class="container mx-auto px-4">
-      
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        
-        <div class="text-left">
-          <h2 class="text-4xl lg:text-5xl font-semibold mb-6 text-yellow-300 font-serif">
-            ¡Bienvenido a Van Gogh Fusiones!
-          </h2>
-          <p class="text-lg leading-relaxed mb-8 text-gray-300">
-            En este espacio, la pasión por el arte y la gastronomía se unen para ofrecerte una experiencia única. Inspirados en la vida y obra de Vincent Van Gogh, creamos un ambiente acogedor y creativo.
-          </p>
-
-          <h3 class="text-3xl font-semibold text-yellow-300 mb-6 font-serif">Nuestras Especialidades</h3>
-          
-          <ul class="space-y-4 text-lg text-gray-200">
-            <li class="flex items-center gap-3">
-              <Fragment set:html={checkIcon} />
-              <span>Fusión de carnes a la parrilla y carbón</span>
-            </li>
-            <li class="flex items-center gap-3">
-              <Fragment set:html={checkIcon} />
-              <span>Comida rápida de autor</span>
-            </li>
-            <li class="flex items-center gap-3">
-              <Fragment set:html={checkIcon} />
-              <span>Café de especialidad</span>
-            </li>
-            <li class="flex items-center gap-3">
-              <Fragment set:html={checkIcon} />
-              <span>Coctelería creativa</span>
-            </li>
-          </ul>
-
-          <a href="#cartas" class="mt-10 inline-block bg-yellow-400 text-blue-900 font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-300 transition-transform duration-300 hover:scale-105">
-            Explora Nuestras Cartas
-          </a>
-        </div>
-        
-        <div class="hidden lg:block">
-          
-          <img 
-            src="/Van_Gogh_Condores.jpeg" 
-            alt="Ambiente acogedor del restaurante Van Gogh Fusiones"
-            class="rounded-lg shadow-2xl w-full h-auto object-cover"
-            style="max-height: 600px;"
-          >
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-		  		<section id="bienvenida" class="py-20 bg-black bg-opacity-20 text-white">
-			<div class="container mx-auto px-4 text-center max-w-4xl">
-				<h2 class="text-4xl font-semibold mb-6 text-yellow-300">¡Bienvenido a Van Gogh Fusiones y Café!</h2>
-				<p class="text-lg leading-relaxed mb-6">
-					En este espacio, la pasión por el arte y la gastronomía se unen para ofrecerte una experiencia única. Inspirados en la vida y obra de Vincent Van Gogh, creamos un ambiente acogedor y creativo donde podrás disfrutar de deliciosas fusiones de comida, café y coctelería.
-				</p>
-				<p class="text-lg leading-relaxed mb-4">
-					Un espacio acogedor y creativo donde podrás disfrutar de:
-				</p>
-				<ul class="flex justify-center gap-4 md:gap-8 text-xl font-bold text-yellow-300 mb-4">
-					<li>Desayunos</li>
-					<li>Almuerzos</li>
-					<li>Cenas</li>
-				</ul>
-				<p class="text-lg mb-6">
-					<strong>Especialidades:</strong> Fusión de carnes a la parrilla y carbón, comida rápida, café y coctelería.
-				</p>
-				<p class="text-2xl font-semibold italic text-yellow-400">
-					"Donde cada bocado es una obra de arte"
-				</p>
-			</div>
+		  		<section class="relative min-h-screen flex items-center justify-center text-center bg-cover bg-center" style="background-image: url('/Van_Gogh.jpg');">
+  			<div class="absolute inset-0 bg-black bg-opacity-50"></div>
+  			<div class="relative z-10 px-4">
+  				<h1 class="text-6xl md:text-8xl font-bold text-yellow-300 drop-shadow-lg">"Donde cada bocado es una obra de arte"</h1>
+  				<p class="text-xl mt-4 max-w-2xl mx-auto text-white">
+  					Una experiencia culinaria inspirada en la pasión y el color de Vincent van Gogh.
+  				</p>
+  				<div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+  					<a href="#reservar" class="inline-block bg-yellow-400 text-blue-900 font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-300 transition-transform duration-300 hover:scale-105">
+  						Reservar una Mesa
+  					</a>
+  					<a href="#cartas" class="inline-block bg-transparent border-2 border-yellow-400 text-yellow-400 font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-400 hover:text-blue-900 transition-all duration-300">
+  						Ver la Carta
+  					</a>
+  				</div>
+  			</div>
   		</section>
+
+              		<section id="bienvenida" class="py-20 bg-black bg-opacity-20 text-white overflow-hidden">
+            <div class="container mx-auto px-4">
+              
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                
+                <div class="text-left">
+                  <h2 class="text-4xl lg:text-5xl font-semibold mb-6 text-yellow-300 font-serif">
+                    ¡Bienvenido a Van Gogh Fusiones!
+                  </h2>
+                  <p class="text-lg leading-relaxed mb-8 text-gray-300">
+                    En este espacio, la pasión por el arte y la gastronomía se unen para ofrecerte una experiencia única. Inspirados en la vida y obra de Vincent Van Gogh, creamos un ambiente acogedor y creativo.
+                  </p>
+
+                  <h3 class="text-3xl font-semibold text-yellow-300 mb-6 font-serif">Nuestras Especialidades</h3>
+                  
+                  <ul class="space-y-4 text-lg text-gray-200">
+                    <li class="flex items-center gap-3">
+                      <Fragment set:html={checkIcon} />
+                      <span>Fusión de carnes a la parrilla y carbón</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                      <Fragment set:html={checkIcon} />
+                      <span>Comida rápida de autor</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                      <Fragment set:html={checkIcon} />
+                      <span>Café de especialidad</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                      <Fragment set:html={checkIcon} />
+                      <span>Coctelería creativa</span>
+                    </li>
+                  </ul>
+
+                  <a href="#cartas" class="mt-10 inline-block bg-yellow-400 text-blue-900 font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-300 transition-transform duration-300 hover:scale-105">
+                    Explora Nuestras Cartas
+                  </a>
+                </div>
+                
+                <div class="hidden lg:block">
+                  
+                  <img 
+                    src="/Van_Gogh_Condores.jpeg" 
+                    alt="Ambiente acogedor del restaurante Van Gogh Fusiones"
+                    class="rounded-lg shadow-2xl w-full h-auto object-cover"
+                    style="max-height: 600px;"
+                  >
+                </div>
+
+              </div>
+            </div>
+          </section>
 
 		  		<section id="cartas" class="py-20 container mx-auto px-4">
   			<h2 class="text-5xl font-semibold mb-12 text-center text-yellow-300">Nuestra Galería de Sabores</h2>
