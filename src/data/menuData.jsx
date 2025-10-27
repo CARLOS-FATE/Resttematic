@@ -5,24 +5,25 @@ export const menuItems = [
     id: "menu-nocturno",
     name: "Carta Nocturna",
   	description: "Empieza tu día con la inspiración de un nuevo lienzo...",
-  	image: "/carta_nocturna.jpeg", 
+  	image: "/portadacarta.jpeg", 
   	price: "desde S/. 16",
   	slug: "cartanocturna",
     images: [
-      "/cartas/nocturna/pagina-1.jpg",
-      "/cartas/nocturna/pagina-2.jpg",
+      "/cartas/portadacarta.jpeg",
+      "/cartas/carta_nocturna.jpeg",
     ]
   },
   {
     id: "menu-dia",
   	name: "Carta del Día",
   	description: "Una pausa al mediodía llena de sabor y color...",
-  	image: "/carta_nocturna.jpeg",
+  	image: "/portadacarta.jpeg",
   	price: "desde S/. 19",
   	slug: "cartadeldial",
     // === NUEVA PROPIEDAD ===
     images: [
-      "/cartas/dia/pagina-1.jpg"
+       "/cartas/portadacarta.jpeg",
+      "/cartas/carta_nocturna.jpeg"
     ]
   },
 ];
