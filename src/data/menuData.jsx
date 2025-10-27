@@ -20,10 +20,9 @@ export const menuItems = [
   	image: "/portadacarta.jpeg",
   	price: "desde S/. 19",
   	slug: "cartadeldial",
-    // === NUEVA PROPIEDAD ===
     images: [
        "/cartas/portadacarta.jpeg",
-      "/cartas/carta_nocturna.jpeg"
+        "/cartas/carta_nocturna.jpeg"
     ]
   },
 ];
