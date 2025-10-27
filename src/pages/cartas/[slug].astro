@@ -2,24 +2,16 @@
 // src/pages/cartas/[slug].astro
 
 import Layout from '../../layouts/Layout.astro';
-// 1. Importamos nuestra fuente de datos
 import { menuItems } from '../../data/menuData.jsx';
 
-// 2. Obtenemos el 'slug' de la URL (ej. "cartanocturna")
 const { slug } = Astro.params;
 
-// 3. Buscamos el objeto del menú que coincide con el slug
-// Usamos .find() para obtener el primer item que cumpla la condición
 const menuItem = menuItems.find(item => item.slug === slug);
 
-// 4. (Buena práctica de Backend) Manejo de errores
-// Si no se encuentra el menú (ej. URL mal escrita), redirigimos a 404
 if (!menuItem) {
-  // Asegúrate de tener una página /404.astro en tu proyecto
   return Astro.redirect('/404');
 }
 
-// 5. Preparamos las variables para el <Layout> (SEO)
 const pageTitle = menuItem.name;
 ---
 <Layout 

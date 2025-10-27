@@ -9,8 +9,8 @@ export const menuItems = [
   	price: "desde S/. 16",
   	slug: "cartanocturna",
     images: [
-      "/cartas/portadacarta.jpeg",
-      "/cartas/carta_nocturna.jpeg",
+      "/portadacarta.jpeg",
+      "/carta_nocturna.jpeg",
     ]
   },
   {
@@ -21,8 +21,8 @@ export const menuItems = [
   	price: "desde S/. 19",
   	slug: "cartadeldial",
     images: [
-       "/cartas/portadacarta.jpeg",
-        "/cartas/carta_nocturna.jpeg"
+       "/portadacarta.jpeg",
+        "/carta_nocturna.jpeg"
     ]
   },
 ];
