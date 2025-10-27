@@ -6,34 +6,10 @@ import ImageCarousel from '../components/ImageCarousel.jsx';
 import { works } from '../data/paintings.jsx';
 import ReservationForm from '../components/reservations/ReservationForm.jsx';
 import Layout from '../layouts/Layout.astro';
+import { menuItems } from '../data/menuData.js';
+import { reviews } from '../data/reviews.js';
+import StarRating from '../components/StarRating.astro';
 
-
-export const menuItems = [
-  {
-    id: "menu-nocturno",
-    name: "Carta Nocturna",
-  	description: "Empieza tu día con la inspiración de un nuevo lienzo...",
-  	image: "/portadacarta.jpeg", 
-  	price: "desde S/. 16",
-  	slug: "cartanocturna",
-    images: [
-      "/portadacarta.jpeg",
-      "/carta_nocturna.jpeg",
-    ]
-  },
-  {
-    id: "menu-dia",
-  	name: "Carta del Día",
-  	description: "Una pausa al mediodía llena de sabor y color...",
-  	image: "/portadacarta.jpeg",
-  	price: "desde S/. 19",
-  	slug: "cartadeldial",
-    images: [
-       "/portadacarta.jpeg",
-        "/carta_nocturna.jpeg"
-    ]
-  },
-];
 ---
 <Layout 
   title="Restaurante Van Gogh – Comida Peruana en Huamachuco" 
@@ -44,89 +20,66 @@ export const menuItems = [
   <Header />
 
   <main>
-	  	<section class="relative min-h-screen flex items-center justify-center text-center bg-cover bg-center" style="background-image: url('/Van_Gogh.jpg');">
-  	  <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-  	  <div class="relative z-10 px-4">
-  		<h1 class="text-6xl md:text-8xl font-bold text-yellow-300 drop-shadow-lg">Donde el Sabor se Vuelve Arte</h1>
-  		<p class="text-xl mt-4 max-w-2xl mx-auto text-white">
-  		  Una experiencia culinaria inspirada en la pasión y el color de Vincent van Gogh.
-  		</p>
-  		<a href="#reservar" class="mt-8 inline-block bg-yellow-400 text-blue-900 font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-300 transition-transform duration-300 hover:scale-105">
-  		  Reservar una Mesa
-  		</a>
-      <a href="#cartas" class="inline-block bg-transparent border-2 border-yellow-400 text-yellow-400 font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-400 hover:text-blue-900 transition-all duration-300">
+            <section class="relative min-h-screen flex items-center justify-center text-center bg-cover bg-center" style="background-image: url('/Van_Gogh.jpg');">
+      <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+      <div class="relative z-10 px-4">
+        <h1 class="text-6xl md:text-8xl font-bold text-yellow-300 drop-shadow-lg">Donde el Sabor se Vuelve Arte</h1>
+        <p class="text-xl mt-4 max-w-2xl mx-auto text-white">
+          Una experiencia culinaria inspirada en la pasión y el color de Vincent van Gogh.
+        </p>
+        
+                <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+          <a href="#reservar" class="inline-block bg-yellow-400 text-blue-900 font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-300 transition-transform duration-300 hover:scale-105">
+            Reservar una Mesa
+          </a>
+          <a href="#cartas" class="inline-block bg-transparent border-2 border-yellow-400 text-yellow-400 font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-400 hover:text-blue-900 transition-all duration-300">
             Ver la Carta
           </a>
-  	  </div>
-  	</section>
+        </div>
+              </div>
+    </section>
 
-	<section id="bienvenida" class="py-20 bg-black bg-opacity-20 text-white">
-		<div class="container mx-auto px-4 text-center max-w-4xl">
-			
-			<h2 class="text-4xl font-semibold mb-6 text-yellow-300">¡Bienvenido a Van Gogh Fusiones y Café!</h2>
-			<p class="text-lg leading-relaxed mb-6">
-				En este espacio, la pasión por el arte y la gastronomía se unen para ofrecerte una experiencia única. Inspirados en la vida y obra de Vincent Van Gogh, creamos un ambiente acogedor y creativo donde podrás disfrutar de deliciosas fusiones de comida, café y coctelería.
-			</p>
-			
-			<p class="text-lg leading-relaxed mb-4">
-				Un espacio acogedor y creativo donde podrás disfrutar de:
-			</p>
-			<ul class="flex justify-center gap-4 md:gap-8 text-xl font-bold text-yellow-300 mb-4">
-				<li>Desayunos</li>
-				<li>Almuerzos</li>
-				<li>Cenas</li>
-			</ul>
-			<p class="text-lg mb-6">
-				<strong>Especialidades:</strong> Fusión de carnes a la parrilla y carbón, comida rápida, café y coctelería.
-			</p>
+        <section id="bienvenida" class="py-20 bg-black bg-opacity-20 text-white">
+          </section>
 
-			<p class="text-2xl font-semibold italic text-yellow-400">
-				"Donde cada bocado es una obra de arte"
-			</p>
-		</div>
-	</section>
-	  	<section id="cartas" class="py-20 container mx-auto px-4">
-  	  <h2 class="text-5xl font-semibold mb-12 text-center text-yellow-300">Nuestra Galería de Sabores</h2>
-  	  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-  		{menuItems.map(item => (
-  		  <a href={`/cartas/${item.slug}`} class="block bg-[#122a51] rounded-lg shadow-xl overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
-  			<img src={item.image} alt={item.name} class="w-full h-64 object-cover" />
-  			<div class="p-6">
-  			  <h3 class="text-2xl font-bold text-yellow-300 mb-2">{item.name}</h3>
-  			  <p class="text-gray-300 mb-4">{item.description}</p>
-  			  <div class="text-right text-2xl font-bold text-yellow-400">{item.price}</div>
-  			</div>
-  		  </a>
-  		))}
-  	  </div>
-  	</section>
+        <section id="cartas" class="py-20 container mx-auto px-4">
+      <h2 class="text-5xl font-semibold mb-12 text-center text-yellow-300">Nuestra Galería de Sabores</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+      {menuItems.map(item => (
+        <a href={`/cartas/${item.slug}`} class="block bg-[#122a51] rounded-lg shadow-xl overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
+        <img src={item.image} alt={item.name} class="w-full h-64 object-cover" />
+        <div class="p-6">
+          <h3 class="text-2xl font-bold text-yellow-300 mb-2">{item.name}</h3>
+          <p class="text-gray-300 mb-4">{item.description}</p>
+          <div class="text-right text-2xl font-bold text-yellow-400">{item.price}</div>
+        </div>
+        </a>
+      ))}
+      </div>
+    </section>
 
-	  	<section id="filosofia" class="py-20 bg-black bg-opacity-20">
-  	  <div class="container mx-auto px-4 flex flex-col lg:flex-row items-center gap-12">
-  		<div class="lg:w-1/2 text-white">
-  		  <h2 class="text-4xl font-semibold mb-6 text-yellow-300">Inspirados por un Genio</h2>
+        <section id="filosofia" class="py-20 bg-black bg-opacity-20">
+          </section>
 
-			<blockquote class="border-l-4 border-yellow-400 pl-4 italic text-gray-300 mb-6">
-				<p>"La vida es una lucha, pero el arte es la luz que nos guía"</p>
-				<footer class="text-right not-italic">- Vincent Van Gogh</footer>
-			</blockquote>
+        <section id="reseñas" class="py-20 container mx-auto px-4">
+      <h2 class="text-5xl font-semibold mb-12 text-center text-yellow-300">Lo que dicen nuestros Clientes</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        {reviews.map(review => (
+          <div class="bg-[#122a51] p-6 rounded-lg shadow-xl flex flex-col">
+            <div class="mb-4">
+              <StarRating rating={review.rating} />
+            </div>
+            <blockquote class="text-gray-300 italic mb-4 flex-grow">
+              "{review.text}"
+            </blockquote>
+            <footer class="text-yellow-400 font-bold text-right">
+              - {review.author}
+            </footer>
+          </div>
+        ))}
 
-  		  <p class="leading-relaxed mb-4">
-  			Vincent van Gogh no solo pintaba, volcaba su alma en cada pincelada. Nosotros buscamos esa misma pasión en nuestra cocina.
-  		  </p>
-  		  <p class="leading-relaxed mb-4">
-  			Nuestro restaurante está decorado con réplicas de sus obras más famosas, creando un ambiente que te sumerge en su mundo.
-  		  </p>
-
-			<h3 class="text-2xl font-semibold mt-6 mb-2 text-yellow-300">Arte y Gastronomía</h3>
-			<p class="leading-relaxed">
-				La unión perfecta de dos pasiones que nos inspiran a crear experiencias únicas. Te invitamos a experimentar una propuesta diferente en Huamachuco.
-			</p>
-  		</div>
-  		<div class="lg:w-1/2 w-full">
-  		  <ImageCarousel works={works} client:load /> 
-  		</div>
-  	  </div>
+      </div>
   	</section>
 	  	<section id="reservar" class="py-20 container mx-auto px-4">
   	  <h2 id="contacto" class="text-5xl font-semibold mb-12 text-center text-yellow-300">Visítanos</h2>
