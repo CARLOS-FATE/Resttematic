@@ -95,9 +95,9 @@ const checkIcon = `
             </div>
           </section>
 
-		  		<section id="cartas" class="py-20 container mx-auto px-4 js-scroll-animate opacity-0 translate-y-10 transition-all duration-700 ease-in-out">
+		  		<section id="cartas" class="py-20 container mx-auto px-4 items-center js-scroll-animate opacity-0 translate-y-10 transition-all duration-700 ease-in-out">
   			<h2 class="text-5xl font-semibold mb-12 text-center text-yellow-300">Nuestra Galería de Sabores</h2>
-  			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+  			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 ">
   				{menuItems.map(item => (
   					<a href={`/cartas/${item.slug}`} class="block bg-[#122a51] rounded-lg shadow-xl overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
   						<img src={item.image} alt={item.name} class="w-full h-64 object-cover" />
