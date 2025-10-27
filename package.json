@@ -20,6 +20,8 @@
     "@astrojs/tailwind": "^6.0.2",
     "@astrojs/vercel": "^8.0.4",
     "@heroicons/react": "^2.2.0",
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.4.0",
     "astro": "^5.13.5",
     "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
@@ -37,6 +39,7 @@
     "react-slick": "^0.31.0",
     "react-toastify": "^11.0.5",
     "slick-carousel": "^1.8.1",
-    "swiper": "^12.0.1"
+    "swiper": "^12.0.1",
+    "three": "^0.180.0"
   }
 }
