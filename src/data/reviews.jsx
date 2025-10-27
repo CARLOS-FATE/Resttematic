@@ -9,7 +9,7 @@ export const reviews = [
   {
     id: 2,
     author: "Marco Polo R.",
-    rating: 4.5,
+    rating: 5,
     text: "Excelente café y los postres son de otro nivel. Un lugar perfecto para una tarde tranquila. La atención fue muy amable."
   },
   {
