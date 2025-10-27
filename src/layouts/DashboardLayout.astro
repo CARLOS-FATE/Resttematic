@@ -1,0 +1,21 @@
+---
+// src/layouts/DashboardLayout.astro
+import DashboardHeader from '../components/DashboardHeader.astro';
+
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>{title} | Restaurante App</title>
+  {/* Aquí puedes añadir tus enlaces a CSS, fuentes, etc. */}
+</head>
+<body class="bg-gray-100">
+  <DashboardHeader />
+  <main>
+    <slot />
+  </main>
+</body>
+</html>
