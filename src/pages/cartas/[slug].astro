@@ -2,33 +2,58 @@
 // src/pages/cartas/[slug].astro
 
 import Layout from '../../layouts/Layout.astro';
+// 1. Importamos nuestra fuente de datos
+import { menuItems } from '../../data/menuData.jsx';
 
-// Obtenemos el 'slug' de la URL (ej. "desayunos", "almuerzos")
+// 2. Obtenemos el 'slug' de la URL (ej. "cartanocturna")
 const { slug } = Astro.params;
 
-// Construimos la ruta completa al archivo PDF
-const pdfUrl = `/cartas/${slug}.pdf`;
+// 3. Buscamos el objeto del menú que coincide con el slug
+// Usamos .find() para obtener el primer item que cumpla la condición
+const menuItem = menuItems.find(item => item.slug === slug);
 
-// Capitalizamos el slug para usarlo en el título (ej. "Desayunos")
-const pageTitle = slug.charAt(0).toUpperCase() + slug.slice(1);
+// 4. (Buena práctica de Backend) Manejo de errores
+// Si no se encuentra el menú (ej. URL mal escrita), redirigimos a 404
+if (!menuItem) {
+  // Asegúrate de tener una página /404.astro en tu proyecto
+  return Astro.redirect('/404');
+}
+
+// 5. Preparamos las variables para el <Layout> (SEO)
+const pageTitle = menuItem.name;
 ---
 <Layout 
-  title={`Carta de ${pageTitle} | Restaurante Van Gogh`}
-  description={`Consulta nuestra carta completa de ${pageTitle}.`}
+  title={`${pageTitle} | Restaurante Van Gogh`}
+  description={`Consulta nuestra ${pageTitle} completa. Platos, bebidas y más.`}
 >
-  <div class="container mx-auto px-4 py-8 text-white">
-    <h1 class="text-4xl font-bold text-yellow-300 text-center mb-8">Carta de {pageTitle}</h1>
-    
-    <iframe
-      src={pdfUrl}
-      width="100%"
-      height="800px"
-      title={`Visor de PDF para la carta de ${pageTitle}`}
-      style="border: none;"
-    >
-      Tu navegador no soporta PDFs incrustados. Puedes descargarlo 
-      <a href={pdfUrl} download class="text-yellow-300 underline">haciendo clic aquí</a>.
-    </iframe>
+  <div class="container mx-auto px-4 py-12">
+    <h1 class="text-5xl font-bold text-yellow-300 text-center mb-10">
+      {pageTitle}
+    </h1>
+
+    <div class="max-w-4xl mx-auto space-y-8">
+      {menuItem.images.map((imgSrc, index) => (
+        <div class="bg-white p-2 rounded-lg shadow-xl overflow-hidden">
+          <img 
+            src={imgSrc} 
+            alt={`Página ${index + 1} de la ${pageTitle}`}
+            class="w-full h-auto rounded"
+            loading="lazy" 
+            decoding="async"
+          />
+        </div>
+      ))}
+    </div>
+
+    <div class="text-center mt-12">
+      <a 
+        href={`/cartas/${slug}.pdf`} 
+        download 
+        class="inline-block bg-yellow-400 text-blue-900 font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-300 transition-transform duration-300 hover:scale-105"
+      >
+        Descargar Carta Completa (PDF)
+      </a>
+    </div>
 
   </div>
 </Layout>
