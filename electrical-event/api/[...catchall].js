@@ -1,4 +1,4 @@
-// Archivo: electrical-event/api/[...catchall].js (Versión Final, Completa y Corregida)
+// Archivo: electrical-event/api/[...catchall].js 
 
 import express from 'express';
 import cors from 'cors';
@@ -32,9 +32,6 @@ app.post('/api/login', async (req, res) => {
         }
         const payload = { user: { id: user.id, role: user.role } };
         const secret = process.env.JWT_SECRET;
-        if (!secret) {
-        return res.status(500).json({ message: 'JWT_SECRET no está configurado en el servidor.' });
-        }
         jwt.sign(payload, secret, { expiresIn: '8h' }, (err, token) => {
             if (err) throw err;
             res.json({ token, user: { id: user.id, role: user.role, name: user.name } });
@@ -145,6 +142,43 @@ app.get('/api/tables', auth(['mesero', 'administrador', 'dueno']), async (req, r
         res.status(200).json(tables);
     } catch (error) { res.status(500).json({ message: 'Error al obtener las mesas.' }); }
 });
+app.get('/api/tables/available', async (req, res) => {
+  try {
+    const { fecha, hora } = req.query;
+    if (!fecha || !hora) {
+      return res.status(400).json({ message: 'Se requieren la fecha y la hora para verificar la disponibilidad.' });
+    }
+    const fechaInicioNueva = new Date(`${fecha}T${hora}:00`);
+    const fechaFinNueva = new Date(fechaInicioNueva.getTime() + 2 * 60 * 60 * 1000);
+
+    const reservasConflictivas = await Reservation.find({
+        estadoPago: { $in: ['pendiente', 'confirmado'] },
+        fecha: {
+             $gte: new Date(fecha).setHours(0, 0, 0, 0),
+             $lt: new Date(fecha).setHours(23, 59, 59, 999)
+        },
+    });
+
+    const occupiedTableIds = new Set();
+    reservasConflictivas.forEach(reserva => {
+        const inicioExistente = new Date(`${new Date(reserva.fecha).toISOString().split('T')[0]}T${reserva.hora}:00`);
+        const finExistente = new Date(inicioExistente.getTime() + 2 * 60 * 60 * 1000);
+
+        if (fechaInicioNueva < finExistente && fechaFinNueva > inicioExistente) {
+            occupiedTableIds.add(reserva.mesaId.toString());
+        }
+    });
+
+    const availableTables = await Table.find({
+      _id: { $nin: Array.from(occupiedTableIds) }
+    }).sort({ nombre: 1 });
+
+    res.status(200).json(availableTables);
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener mesas disponibles.', error: error.message });
+  }
+});
 
 app.post('/api/tables', auth(['administrador', 'dueno']), async (req, res) => {
     try {
@@ -159,7 +193,9 @@ app.put('/api/tables/:id', auth(['administrador', 'dueno']), async (req, res) =>
         const updatedTable = await Table.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!updatedTable) return res.status(404).json({ message: 'Mesa no encontrada.' });
         res.status(200).json(updatedTable);
-    } catch (error) { res.status(400).json({ message: 'Error al actualizar la mesa.', error: error.message }); }
+    } catch (error) {
+        res.status(400).json({ message: 'Error al actualizar la mesa.', error: error.message });
+    }
 });
 
 app.put('/api/tables/:id/status', auth(['mesero', 'administrador', 'dueno']), async (req, res) => {
@@ -178,7 +214,14 @@ app.delete('/api/tables/:id', auth(['administrador', 'dueno']), async (req, res)
         res.status(200).json({ message: 'Mesa eliminada con éxito.' });
     } catch (error) { res.status(500).json({ message: 'Error al eliminar la mesa.' }); }
 });
-
+app.get('/api/tables/public', async (req, res) => {
+    try {
+        const tables = await Table.find().sort({ nombre: 1 });
+        res.status(200).json(tables);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener las mesas.', error: error.message });
+    }
+});
 // ===========================================
 // RUTAS DE PEDIDOS (ORDERS)
 // ===========================================
@@ -266,21 +309,20 @@ app.put('/api/orders/:id/paid', auth(['caja']), async (req, res) => {
 
 app.delete('/api/orders/:id', auth(['mesero']), async (req, res) => {
     try {
-        const orderToDelete = await Order.findById(req.params.id);
-        if (!orderToDelete) return res.status(404).json({ message: 'Pedido no encontrado.' });
-        
-        if (!orderToDelete.esPagado) {
-            for (const item of orderToDelete.items) {
-                await MenuItem.findByIdAndUpdate(item.menuItemId, { $inc: { inventory: +item.cantidad } });
-            }
-        }
-        if (orderToDelete.mesaId) {
-            await Table.findByIdAndUpdate(orderToDelete.mesaId, { estado: 'disponible' });
-        }
-
-        
-        await Order.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: 'Pedido eliminado y mesa liberada con éxito.' });
+        const orderToDelete = await Order.findById(req.params.id);
+        if (!orderToDelete) return res.status(404).json({ message: 'Pedido no encontrado.' });
+        
+        if (!orderToDelete.esPagado) {
+            for (const item of orderToDelete.items) {
+                await MenuItem.findByIdAndUpdate(item.menuItemId, { $inc: { inventory: +item.cantidad } });
+            }
+        }
+        if (orderToDelete.mesaId && !orderToDelete.esPagado) {
+            await Table.findByIdAndUpdate(orderToDelete.mesaId, { estado: 'disponible' });
+        }
+        
+        await Order.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: 'Pedido eliminado y mesa liberada con éxito.' });
     } catch (error) { res.status(500).json({ message: 'Error al eliminar el pedido.' }); }
 });
 
@@ -309,49 +351,98 @@ app.get('/api/reservations/pending-payment', auth(['caja', 'administrador', 'due
         res.status(200).json(pendingReservations);
     } catch (error) { res.status(500).json({ message: 'Error al obtener las reservas pendientes de pago.' }); }
 });
-app.get('/api/reservations/all-active', auth(['dueno', 'administrador']), async (req, res) => {
+app.get('/api/reservations/all-active', auth(['administrador', 'dueno']), async (req, res) => {
     try {
         const activeReservations = await Reservation.find({
             estadoPago: { $in: ['pendiente', 'confirmado'] },
-            fecha: { $gte: new Date().setHours(0, 0, 0, 0) } // Solo reservas de hoy en adelante
+            fecha: { $gte: new Date().setHours(0, 0, 0, 0) }
         }).sort({ fecha: 1, hora: 1 });
-        
         res.status(200).json(activeReservations);
     } catch (error) {
-        res.status(500).json({ message: 'Error al obtener las reservas activas.', error: error.message });
+        res.status(500).json({ message: 'Error al obtener las reservas activas.' });
     }
 });
-
-app.put('/api/reservations/:id/confirm-payment-with-details', auth(['caja', 'administrador', 'dueno']), async (req, res) => {
+app.post('/api/reservations', async (req, res) => {
     try {
-        const { montoPagado, comprobantePago, notasCajero } = req.body;
+        // 1. Extraemos todos los datos del formulario que vienen en el body
+        const { nombreCliente, email, telefono, fecha, hora, numeroPersonas, mesaId } = req.body;
+        
+        // 2. Validación simple para asegurar que se seleccionó una mesa
+        if (!mesaId) {
+            return res.status(400).json({ message: "Por favor, selecciona una mesa." });
+        }
 
-        const updatedReservation = await Reservation.findByIdAndUpdate(
-            req.params.id,
-            { 
-                estadoPago: 'confirmado',
-                montoPagado,
-                comprobantePago,
-                notasCajero
+        // 3. Lógica para comprobar si la mesa ya está reservada en ese horario
+        const duracionReservaHoras = 2;
+        const fechaInicio = new Date(`${fecha}T${hora}:00`);
+        const fechaFin = new Date(fechaInicio.getTime() + duracionReservaHoras * 60 * 60 * 1000);
+
+        const reservasConflictivas = await Reservation.find({
+            mesaId: mesaId,
+            estadoPago: { $in: ['pendiente', 'confirmado'] },
+            fecha: {
+                $gte: new Date(fecha).setHours(0, 0, 0, 0),
+                $lt: new Date(fecha).setHours(23, 59, 59, 999)
             },
-            { new: true }
-        );
+        });
 
-        if (!updatedReservation) {
-            return res.status(404).json({ message: 'Reserva no encontrada.' });
+        const haySolapamiento = reservasConflictivas.some(reservaExistente => {
+            const inicioExistente = new Date(`${new Date(reservaExistente.fecha).toISOString().split('T')[0]}T${reservaExistente.hora}:00`);
+            const finExistente = new Date(inicioExistente.getTime() + duracionReservaHoras * 60 * 60 * 1000);
+            return fechaInicio < finExistente && fechaFin > inicioExistente;
+        });
+
+        if (haySolapamiento) {
+            return res.status(400).json({ message: 'Lo sentimos, esta mesa ya está reservada para ese horario.' });
         }
         
-        res.status(200).json({ message: 'Pago de la reserva confirmado con éxito.', reservation: updatedReservation });
+        // 4. Creamos la nueva reserva con todos los datos
+        const newReservation = new Reservation({
+            nombreCliente,
+            email,
+            telefono,
+            fecha,
+            hora,
+            numeroPersonas,
+            mesaId
+        });
+        
+        // 5. Guardamos en la base de datos y respondemos al cliente
+        await newReservation.save();
+        res.status(201).json({ message: '¡Reserva creada con éxito! Nos pondremos en contacto para confirmar el pago.', reservation: newReservation });
 
     } catch (error) {
-        res.status(400).json({ message: 'Error al confirmar el pago.', error: error.message });
+        // Si hay algún otro error (ej. de validación del modelo), lo capturamos aquí
+        res.status(400).json({ message: 'Error al procesar la reserva.', error: error.message });
     }
 });
+
+
 // ===========================================
-// RUTAS DE sales (sales)
+// RUTAS DE REPORTES (SALES)
 // ===========================================
 
-// ... (Aquí puedes añadir el resto de tus rutas PUT, GET por ID, etc. para los demás modelos)
+app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) => {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const paidOrders = await Order.find({ createdAt: { $gte: today }, esPagado: true });
+        const confirmedReservations = await Reservation.find({
+            updatedAt: { $gte: today },
+            estadoPago: 'confirmado',
+        });
+        const incomeFromOrders = paidOrders.reduce((sum, order) => sum + order.total, 0);
+        const incomeFromReservations = confirmedReservations.reduce((sum, res) => sum + res.montoPagado, 0);
+        res.status(200).json({
+            totalOrders: paidOrders.length,
+            incomeFromOrders,
+            totalReservations: confirmedReservations.length,
+            incomeFromReservations,
+            totalIncome: incomeFromOrders + incomeFromReservations
+        });
+    } catch (error) { res.status(500).json({ message: 'Error al obtener el resumen de ventas.' }); }
+});
+
 app.get('/api/sales/daily-range', auth(['dueno', 'administrador']), async (req, res) => {
     try {
         const { startDate, endDate } = req.query;
@@ -385,91 +476,6 @@ app.get('/api/sales/daily-range', auth(['dueno', 'administrador']), async (req, 
         res.status(500).json({ message: 'Error al obtener el reporte detallado.', error: error.message });
     }
 });
-app.get('/api/sales/export', auth(['dueno', 'administrador']), async (req, res) => {
-    try {
-        const { startDate, endDate } = req.query;
-        if (!startDate || !endDate) {
-            return res.status(400).json({ message: 'Se requieren fechas de inicio y fin.' });
-        }
-
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-
-        const orders = await Order.find({
-            createdAt: { $gte: start, $lte: end },
-            esPagado: true,
-        }).sort({ createdAt: 1 });
-
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Ventas');
-
-        // Definir columnas y sus encabezados
-        worksheet.columns = [
-            { header: 'Fecha', key: 'date', width: 25 },
-            { header: 'Mesa', key: 'table', width: 15 },
-            { header: 'Items', key: 'items', width: 60 },
-            { header: 'Total (S/)', key: 'total', width: 15 },
-        ];
-
-        // Añadir una fila por cada pedido encontrado
-        orders.forEach(order => {
-            worksheet.addRow({
-                date: new Date(order.createdAt).toLocaleString('es-PE'),
-                table: order.numeroMesa,
-                items: order.items.map(i => `${i.cantidad}x ${i.nombre}`).join(', '),
-                total: order.total.toFixed(2),
-            });
-        });
-
-        // Configurar la respuesta para que el navegador la trate como un archivo de descarga
-        res.setHeader(
-            "Content-Type",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        );
-        res.setHeader(
-            "Content-Disposition",
-            `attachment; filename="reporte_ventas_${startDate}_a_${endDate}.xlsx"`
-        );
-        
-        await workbook.xlsx.write(res);
-        res.end();
-
-    } catch (error) {
-        console.error("Error al exportar a Excel:", error);
-        res.status(500).json({ message: 'Error al exportar el reporte a Excel.' });
-    }
-});
-app.get('/api/sales/daily', auth(['dueno', 'administrador']), async (req, res) => {
-    try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const paidOrders = await Order.find({
-            createdAt: { $gte: today },
-            esPagado: true
-        });
-
-        const confirmedReservations = await Reservation.find({
-            updatedAt: { $gte: today }, // Usamos updatedAt para saber cuándo se confirmó el pago
-            estadoPago: 'confirmado',
-        });
-
-        const incomeFromOrders = paidOrders.reduce((sum, order) => sum + order.total, 0);
-        const incomeFromReservations = confirmedReservations.reduce((sum, res) => sum + res.montoPagado, 0);
-
-        res.status(200).json({
-            totalOrders: paidOrders.length,
-            incomeFromOrders,
-            totalReservations: confirmedReservations.length,
-            incomeFromReservations,
-            totalIncome: incomeFromOrders + incomeFromReservations
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el resumen de ventas.', error: error.message });
-    }
-});
-/////////////////////////////////////////////////
 // ===========================================
 // HANDLER FINAL PARA VERCEL
 // ===========================================
@@ -478,3 +484,5 @@ export default async function handler(req, res) {
   await connectDB();
   return app(req, res);
 }
+
+

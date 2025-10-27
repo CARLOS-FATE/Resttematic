@@ -3,8 +3,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import EditOrderForm from './EditOrderForm.jsx';
 import { useAuth } from './AuthContext.client.jsx';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/solid';
 
-
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center">
+            <div className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-sm mx-4">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">{title}</h3>
+                <div className="text-gray-600 mb-6">{children}</div>
+                <div className="flex justify-end gap-4">
+                    <button onClick={onClose} className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 font-semibold transition">
+                        Cancelar
+                    </button>
+                    <button onClick={onConfirm} className="px-4 py-2 rounded-md bg-orange-500 text-white hover:bg-orange-600 font-semibold transition">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const WaiterDashboard = ({ userRole }) => {
   // 1. Obtenemos el contexto completo. En el primer render será 'null'.
@@ -19,16 +38,18 @@ const WaiterDashboard = ({ userRole }) => {
     const [editingOrder, setEditingOrder] = useState(null);
     const [filterCategory, setFilterCategory] = useState('');
 
-    // --- NUEVOS ESTADOS PARA MESAS Y RESERVAS ---
+    // NUEVOS ESTADOS PARA MESAS Y RESERVAS
     const [tables, setTables] = useState([]);
     const [reservations, setReservations] = useState([]);
-    const [view, setView] = useState('tables'); // 'tables', 'orders', 'menu'
+    const [view, setView] = useState('tables');
+
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [tableToFree, setTableToFree] = useState(null);
 
   if (!auth) {
     return <p className="p-8 text-center text-gray-500">Inicializando...</p>;
   }
 const { token, authHeader } = auth;
-  // Optimizamos fetchOrders con useCallback, dependiendo del objeto 'auth'
   const fetchOrders = useCallback(async () => {
     if (!auth?.token) return;
      try {
@@ -174,6 +195,7 @@ useEffect(() => {
       if (!response.ok) throw new Error('Error al eliminar el pedido.');
       setSuccess('¡Pedido eliminado con éxito!');
       fetchOrders();
+      fetchTables();
     } catch (err) { setError(err.message); }
   };
   
@@ -190,12 +212,30 @@ useEffect(() => {
   const getCategories = () => {
     return [...new Set(menuItems.map(item => item.categoria))];
   };
+ const handleOpenConfirmModal = (table) => {
+        setTableToFree(table);
+        setIsConfirmModalOpen(true);
+    };
+
+    const handleCloseConfirmModal = () => {
+        setTableToFree(null);
+        setIsConfirmModalOpen(false);
+    };
+
+    const handleConfirmFreeTable = () => {
+        if (tableToFree) {
+            toggleTableStatus(tableToFree._id, 'ocupada');
+        }
+        handleCloseConfirmModal();
+    };
+
 
   const filteredMenuItems = menuItems.filter(item => item.categoria === filterCategory);
      if (!token) {
     return <p className="p-8 text-center text-gray-500 text-lg">Cargando autenticación...</p>;
   }
   return (
+    <>
     <div className="container mx-auto p-4">
         <h1 className="text-4xl font-bold mb-6 text-center">Dashboard del Mesero</h1>
         
@@ -241,11 +281,19 @@ useEffect(() => {
                                 return (
                                     <button
                                         key={table._id}
-                                        onClick={() => toggleTableStatus(table._id, table.estado)}
-                                        // El botón se deshabilita si está ocupada o reservada
-                                        disabled={table.estado === 'ocupada' || !!reservationForTable}
+                                        onClick={() => {
+                                            if (table.estado === 'ocupada') {
+                                                            handleOpenConfirmModal(table);
+                                            }
+                                        }}
+
+                                        disabled={table.estado !== 'ocupada' || !!reservationForTable}
                                         className={`p-4 rounded-lg text-white font-bold text-center transition ${buttonClass}`}
-                                        title={reservationForTable ? `Reservada para ${reservationForTable.nombreCliente} a las ${reservationForTable.hora}` : `Mesa ${table.estado}`}
+                                        title={
+                                            reservationForTable ? `Reservada para ${reservationForTable.nombreCliente}` :
+                                            table.estado === 'ocupada' ? `Clic para liberar manualmente` :
+                                            `Mesa ${table.estado}`
+                                        }
                                     >
                                         <p className="text-xl">{table.nombre}</p>
                                         <p className="text-sm capitalize">{status}</p>
@@ -368,15 +416,27 @@ useEffect(() => {
                                         </td>
                                         <td className="p-2">S/. {order.total.toFixed(2)}</td>
                                         <td className="p-2 space-x-2">
-                                            <button onClick={() => handleEditOrder(order)} className="text-blue-500 hover:text-blue-700">Editar</button>
-                                            <button onClick={() => handleDeleteOrder(order._id)} className="text-red-500 hover:text-red-700">Eliminar</button>
+                                            <button 
+                                                onClick={() => handleEditOrder(order)} 
+                                                className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                                            >
+                                                <PencilSquareIcon className="h-5 w-5 mr-1" />
+                                                <span>Editar</span>
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteOrder(order._id)} 
+                                                className="flex items-center text-red-600 hover:text-red-800 transition-colors"
+                                            >
+                                                <TrashIcon className="h-5 w-5 mr-1" />
+                                                <span>Eliminar</span>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
-                    {editingOrder && <EditOrderForm order={editingOrder} onUpdate={() => { fetchOrders(); setEditingOrder(null); }} onClose={() => setEditingOrder(null)} menuItems={menuItems} authHeader={authHeader} />}
+                    {editingOrder && <EditOrderForm order={editingOrder} onUpdate={() => { fetchOrders(); setEditingOrder(null); }} onClose={() => setEditingOrder(null)} menuItems={menuItems} authHeader={authHeader} tables={tables}/>}
                 </section>
             </>
         )}
@@ -404,6 +464,18 @@ useEffect(() => {
             </section>
         )}
     </div>
+    <ConfirmationModal
+            isOpen={isConfirmModalOpen}
+            onClose={handleCloseConfirmModal}
+            onConfirm={handleConfirmFreeTable}
+            title="Confirmar Liberación"
+        >
+            ¿Estás seguro de que quieres liberar manualmente la <strong>{tableToFree?.nombre}</strong>?
+            <br />
+            <span className="text-sm text-gray-500">Usa esta opción solo si la mesa está realmente vacía.</span>
+        </ConfirmationModal>
+
+    </>
 );
 };
 

@@ -1,0 +1,34 @@
+---
+// src/pages/cartas/[slug].astro
+
+import Layout from '../../layouts/Layout.astro';
+
+// Obtenemos el 'slug' de la URL (ej. "desayunos", "almuerzos")
+const { slug } = Astro.params;
+
+// Construimos la ruta completa al archivo PDF
+const pdfUrl = `/cartas/${slug}.pdf`;
+
+// Capitalizamos el slug para usarlo en el título (ej. "Desayunos")
+const pageTitle = slug.charAt(0).toUpperCase() + slug.slice(1);
+---
+<Layout 
+  title={`Carta de ${pageTitle} | Restaurante Van Gogh`}
+  description={`Consulta nuestra carta completa de ${pageTitle}.`}
+>
+  <div class="container mx-auto px-4 py-8 text-white">
+    <h1 class="text-4xl font-bold text-yellow-300 text-center mb-8">Carta de {pageTitle}</h1>
+    
+    <iframe
+      src={pdfUrl}
+      width="100%"
+      height="800px"
+      title={`Visor de PDF para la carta de ${pageTitle}`}
+      style="border: none;"
+    >
+      Tu navegador no soporta PDFs incrustados. Puedes descargarlo 
+      <a href={pdfUrl} download class="text-yellow-300 underline">haciendo clic aquí</a>.
+    </iframe>
+
+  </div>
+</Layout>

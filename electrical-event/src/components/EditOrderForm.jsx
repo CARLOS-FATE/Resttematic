@@ -1,16 +1,20 @@
   // EditOrderForm.jsx
   import React, { useState } from 'react';
 
-const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader }) => {
+const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables }) => {
   const [editedTableNumber, setEditedTableNumber] = useState(order.numeroMesa);
   const [editedItems, setEditedItems] = useState(order.items.map(item => ({ ...item })));
 
+  const selectableTables = tables.filter(
+    table => table.estado === 'disponible' || table.nombre === order.numeroMesa
+  );
+  
   const handleUpdate = async (e) => {
     e.preventDefault();
     const newTotal = editedItems.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
     const updatedOrder = {
       ...order,
-      numeroMesa: parseInt(editedTableNumber),
+      numeroMesa: editedTableNumber,
       items: editedItems,
       total: newTotal,
     };
@@ -76,13 +80,18 @@ const handleRemoveItem = (itemId) => {
         <form onSubmit={handleUpdate}>
           <div className="mb-4">
             <label className="block text-gray-700 font-bold">Número de Mesa</label>
-            <input
-              type="number"
+            <select
               value={editedTableNumber}
               onChange={(e) => setEditedTableNumber(e.target.value)}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded-md bg-white"
               required
-            />
+            >
+              {selectableTables.map(table => (
+                <option key={table._id} value={table.nombre}>
+                  {table.nombre}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 font-bold">Items</label>

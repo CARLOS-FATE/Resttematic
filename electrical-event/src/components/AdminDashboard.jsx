@@ -28,7 +28,7 @@ const AdminDashboard = ({ userRole }) => {
     const [menuItems, setMenuItems] = useState([]);
     const [isMenuManagementVisible, setIsMenuManagementVisible] = useState(false);
     const [editingMenuItem, setEditingMenuItem] = useState(null);
-    const [newMenuItem, setNewMenuItem] = useState({ nombre: '', categoria: 'Desayuno', precio: '', inventory: '' });
+    const [newMenuItem, setNewMenuItem] = useState({ nombre: '', categoria: 'Desayunos', precio: '', inventory: '' });
     const [detailedSalesReport, setDetailedSalesReport] = useState([]);
     const [tables, setTables] = useState([]);
     const [isTableManagementVisible, setIsTableManagementVisible] = useState(false);
@@ -189,7 +189,7 @@ const AdminDashboard = ({ userRole }) => {
             });
             if (!response.ok) throw new Error('Error al crear el plato.');
             setSuccess('Plato creado con éxito.');
-            setNewMenuItem({ nombre: '', categoria: 'Desayuno', precio: '', inventory: '' });
+            setNewMenuItem({ nombre: '', categoria: 'Desayunos', precio: '', inventory: '' });
             fetchMenuItems();
         } catch (err) { setError(err.message); }
     };
@@ -581,7 +581,7 @@ const AdminDashboard = ({ userRole }) => {
                                     onChange={(e) => setNewMenuItem({ ...newMenuItem, categoria: e.target.value })}
                                     className="p-2 border rounded" required
                                 >
-                                    <option value="Desayuno">Desayuno</option>
+                                    <option value="Desayunos">Desayunos</option>
                                     <option value="Almuerzo">Almuerzo</option>
                                     <option value="Cena">Cena</option>
                                     <option value="Postres">Postres</option>
