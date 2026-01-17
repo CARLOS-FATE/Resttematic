@@ -1,54 +1,51 @@
----
-// src/components/Header.astro
----
 <header class="bg-[#0b1a33] shadow-lg sticky top-0 z-50">
-  	<div class="container mx-auto px-4 py-4 flex justify-between items-center">
-  		<a href="/" class="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-300">
-  			<img src="/logo.png" alt="Logo de Van Gogh Fusions Et Café" class="h-12">
-  			<span class="text-white text-xl font-bold font-serif hidden sm:block">Van Gogh Et Fusion</span>
-  		</a>
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <a href="/" class="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-300">
+            <img src="/logo.png" alt="Logo de Van Gogh Fusions Et Café" class="h-12">
+            <span class="text-white text-xl font-bold font-serif hidden sm:block">Van Gogh Et Fusion</span>
+        </a>
 
-  		<nav class="hidden md:flex items-center space-x-6">
-  			<a href="/" class="text-gray-200 hover:text-yellow-300 transition duration-300">Inicio</a>
-  			{// <a href="/menu" class="text-gray-200 hover:text-yellow-300 transition duration-300">Menú</a>}
-  			<a href="/#filosofia" class="text-gray-200 hover:text-yellow-300 transition duration-300">Filosofía</a>
-  			<a href="/#contacto" class="text-gray-200 hover:text-yellow-300 transition duration-300">Contacto</a>
-  			<a href="/login" class="text-gray-300 text-sm hover:text-yellow-300 transition duration-300">Iniciar Sesión</a>
-  		</nav>
+        <nav class="hidden md:flex items-center space-x-6">
+            <a href="/" class="text-gray-200 hover:text-yellow-300 transition duration-300">Inicio</a>
+           {// <a href="/menu" class="text-gray-200 hover:text-yellow-300 transition duration-300">Menú</a>}}
+            <a href="/#filosofia" class="text-gray-200 hover:text-yellow-300 transition duration-300">Filosofía</a>
+            <a href="/#contacto" class="text-gray-200 hover:text-yellow-300 transition duration-300">Contacto</a>
+            <a href="/login" class="text-gray-300 text-sm hover:text-yellow-300 transition duration-300">Iniciar Sesión</a>
+        </nav>
 
-  		<div class="flex items-center space-x-4">
-  			<a href="/#reservar" class="hidden sm:inline-block bg-yellow-400 text-blue-900 font-bold py-2 px-5 rounded-full text-md hover:bg-yellow-300 transition-transform duration-300 hover:scale-105">
-  				Reservar
-  			</a>
-  			
-  			<button id="menu-btn" class="md:hidden p-2 rounded-md focus:outline-none">
-  				<svg class="h-6 w-6 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
-  				</svg>
-  			</button>
-  		</div>
-  	</div>
+        <div class="flex items-center space-x-4">
+            <a href="/#reservar" class="hidden sm:inline-block bg-yellow-400 text-blue-900 font-bold py-2 px-5 rounded-full text-md hover:bg-yellow-300 transition-transform duration-300 hover:scale-105">
+                Reservar
+            </a>
+            
+            <button id="menu-btn" class="md:hidden p-2 rounded-md focus:outline-none">
+                <svg class="h-6 w-6 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                </svg>
+            </button>
+        </div>
+    </div>
 
-	  	<div id="mobile-menu" class="hidden md:hidden bg-[#122a51]">
-  		<nav class="flex flex-col items-center space-y-4 py-6">
-  			<a href="/" class="text-gray-200 hover:text-yellow-300">Inicio</a>
-  			{//<a href="/menu" class="text-gray-200 hover:text-yellow-300">Menú</a>}
-  			<a href="/#filosofia" class="text-gray-200 hover:text-yellow-300">Filosofía</a>
-  			<a href="/#reservar" class="text-gray-200 hover:text-yellow-300">Contacto</a>
-  			<a href="/login" class="text-gray-300 hover:text-yellow-300">Iniciar Sesión</a>
-  			<a href="/#reservar" class="mt-4 bg-yellow-400 text-blue-900 font-bold py-2 px-12 rounded-full text-md">
-  				Reservar
-  			</a>
-  		</nav>
-  	</div>
+    <div id="mobile-menu" class="hidden md:hidden bg-[#122a51]">
+        <nav class="flex flex-col items-center space-y-4 py-6">
+            <a href="/" class="text-gray-200 hover:text-yellow-300">Inicio</a>
+            {//<a href="/menu" class="text-gray-200 hover:text-yellow-300">Menú</a>
+            <a href="/#filosofia" class="text-gray-200 hover:text-yellow-300">Filosofía</a>
+            <a href="/#reservar" class="text-gray-200 hover:text-yellow-300">Contacto</a>
+            <a href="/login" class="text-gray-300 hover:text-yellow-300">Iniciar Sesión</a>
+             <a href="/#reservar" class="mt-4 bg-yellow-400 text-blue-900 font-bold py-2 px-12 rounded-full text-md">
+                Reservar
+            </a>
+        </nav>
+    </div>
 </header>
 
 <script>
-  	const menuBtn = document.getElementById('menu-btn');
-  	const mobileMenu = document.getElementById('mobile-menu');
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
 
-  	menuBtn.addEventListener('click', () => {
-  		// La función .toggle('hidden') añade o quita la clase 'hidden' cada vez que se hace clic
-  		mobileMenu.classList.toggle('hidden');
-  	}); 
+    menuBtn.addEventListener('click', () => {
+        // La función .toggle('hidden') añade o quita la clase 'hidden' cada vez que se hace clic
+        mobileMenu.classList.toggle('hidden');
+    }); 
 </script>
