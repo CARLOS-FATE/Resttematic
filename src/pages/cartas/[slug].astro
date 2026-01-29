@@ -29,27 +29,30 @@ const pageTitle = menuItem.name;
       {pageTitle}
     </h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 max-w-6xl mx-auto"
+    >
       {
         dbItems.length > 0 ? (
           dbItems.map((item) => (
-            <div class="bg-[#122a51] p-6 rounded-lg shadow-xl border border-blue-900/50 hover:border-yellow-400/50 transition-colors">
-              <div class="flex justify-between items-start mb-4">
-                <h3 class="text-2xl font-bold text-yellow-300 font-serif">
+            <div class="border-b border-gray-700/50 pb-4 mb-2 group">
+              <div class="flex justify-between items-end">
+                <h3 class="text-2xl font-bold text-white font-serif tracking-wide group-hover:text-yellow-300 transition-colors">
                   {item.nombre}
                 </h3>
-                <span class="text-xl font-bold text-white bg-blue-900/50 px-3 py-1 rounded-full">
+                <span class="text-xl font-bold text-yellow-400 font-sans">
                   S/. {item.precio.toFixed(2)}
                 </span>
               </div>
-              <p class="text-gray-300 italic mb-4">
-                {item.descripcion || "Sin descripción disponible."}
+
+              <p class="text-gray-400 text-sm mt-1 italic font-light">
+                {item.descripcion || "Descripción próximamente..."}
               </p>
             </div>
           ))
         ) : (
-          <div class="col-span-full text-center text-gray-400 text-xl italic p-12 bg-white/5 rounded-lg">
-            No hay items disponibles en esta categoría por el momento.
+          <div class="col-span-full text-center text-gray-400 text-xl italic p-12">
+            Próximamente...
           </div>
         )
       }

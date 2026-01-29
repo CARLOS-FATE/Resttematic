@@ -1,4 +1,4 @@
-// Archivo: electrical-event/api/mongoose.js
+// mongoose.js
 
 import mongoose from 'mongoose';
 

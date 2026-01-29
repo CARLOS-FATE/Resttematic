@@ -19,7 +19,7 @@ const menuItemSchema = new mongoose.Schema({
   categoria: {
     type: String,
     required: true,
-    enum: ['Desayunos', 'Almuerzos', 'Cenas', 'Bebidas', 'Postres', 'Entradas', 'Platos Principales', 'Parrillas', 'Alitas', 'Hamburguesas', 'Barista', 'Bartender', 'Sandwiches'],
+    enum: ['Parrillas', 'Alitas', 'Hamburguesas', 'Barista', 'Bartender', 'Sandwiches'],
   },
   inventory: {
     type: Number,
