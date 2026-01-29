@@ -27,7 +27,7 @@ const ImageCarousel = ({ works }) => {
                         <div className="relative w-full aspect-video text-white">
                             <img src={work.src} alt={work.alt} className="w-full h-full object-cover rounded-lg" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
-                            {/* CORRECCIÓN DEL BUG DE ESTILO: md:p-12 */}
+
                             <div className="absolute bottom-0 left-0 p-6 md:p-12">
                                 <h2 className="text-3xl md:text-4xl font-bold text-yellow-300 font-serif mb-3">{work.title}</h2>
                                 <p className="text-lg text-gray-200 max-w-2xl">{work.summary}</p>
