@@ -5,8 +5,7 @@ import mongoose from 'mongoose';
 const menuItemSchema = new mongoose.Schema({
   nombre: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   descripcion: {
     type: String,
@@ -29,5 +28,7 @@ const menuItemSchema = new mongoose.Schema({
 }, {
   timestamps: true,
 });
+
+menuItemSchema.index({ nombre: 1, categoria: 1 }, { unique: true });
 
 export default mongoose.model('MenuItem', menuItemSchema);

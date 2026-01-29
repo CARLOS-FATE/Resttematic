@@ -30,7 +30,7 @@ const AdminDashboard = ({ userRole }) => {
     const [menuItems, setMenuItems] = useState([]);
     const [isMenuManagementVisible, setIsMenuManagementVisible] = useState(false);
     const [editingMenuItem, setEditingMenuItem] = useState(null);
-    const [newMenuItem, setNewMenuItem] = useState({ nombre: '', categoria: 'Desayunos', precio: '', inventory: '', description: '' });
+    const [newMenuItem, setNewMenuItem] = useState({ nombre: '', categoria: 'Parrillas', precio: '', inventory: '', descripcion: '' });
     const [detailedSalesReport, setDetailedSalesReport] = useState([]);
     const [tables, setTables] = useState([]);
     const [isTableManagementVisible, setIsTableManagementVisible] = useState(false);
@@ -191,7 +191,7 @@ const AdminDashboard = ({ userRole }) => {
             });
             if (!response.ok) throw new Error('Error al crear el plato.');
             setSuccess('Plato creado con éxito.');
-            setNewMenuItem({ nombre: '', categoria: 'Desayunos', precio: '', inventory: '', description: '' });
+            setNewMenuItem({ nombre: '', categoria: 'Desayunos', precio: '', inventory: '', descripcion: '' });
             fetchMenuItems();
         } catch (err) { setError(err.message); }
     };
@@ -215,7 +215,7 @@ const AdminDashboard = ({ userRole }) => {
             if (!response.ok) throw new Error('Error al actualizar el plato.');
 
             setSuccess('Plato actualizado con éxito.');
-            setNewMenuItem({ nombre: '', categoria: '', precio: '', inventory: '', description: '' });
+            setNewMenuItem({ nombre: '', categoria: '', precio: '', inventory: '', descripcion: '' });
             setEditingMenuItem(null);
             fetchMenuItems();
         } catch (err) {
@@ -260,7 +260,7 @@ const AdminDashboard = ({ userRole }) => {
 
     const cancelEdit = () => {
         setEditingMenuItem(null);
-        setNewMenuItem({ nombre: '', categoria: '', precio: '', inventory: '', description: '' });
+        setNewMenuItem({ nombre: '', categoria: '', precio: '', inventory: '', descripcion: '' });
     };
 
     const handleExport = () => {
@@ -583,11 +583,7 @@ const AdminDashboard = ({ userRole }) => {
                                     onChange={(e) => setNewMenuItem({ ...newMenuItem, categoria: e.target.value })}
                                     className="p-2 border rounded" required
                                 >
-                                    <option value="Desayunos">Desayunos</option>
-                                    <option value="Almuerzo">Almuerzo</option>
-                                    <option value="Cena">Cena</option>
-                                    <option value="Postres">Postres</option>
-                                    <option value="Bebidas">Bebidas</option>
+
                                     <option value="Parrillas">Parrillas</option>
                                     <option value="Alitas">Alitas</option>
                                     <option value="Hamburguesas">Hamburguesas</option>
@@ -598,8 +594,8 @@ const AdminDashboard = ({ userRole }) => {
                                 <input
                                     type="text"
                                     placeholder="Descripción"
-                                    value={newMenuItem.description}
-                                    onChange={(e) => setNewMenuItem({ ...newMenuItem, description: e.target.value })}
+                                    value={newMenuItem.descripcion}
+                                    onChange={(e) => setNewMenuItem({ ...newMenuItem, descripcion: e.target.value })}
                                     className="p-2 border rounded"
                                 />
                                 <input
@@ -637,6 +633,7 @@ const AdminDashboard = ({ userRole }) => {
                                         <tr className="bg-gray-200 text-gray-700">
                                             <th className="p-2 text-left">Nombre</th>
                                             <th className="p-2 text-left">Categoría</th>
+                                            <th className="p-2 text-left">Descripción</th>
                                             <th className="p-2 text-left">Precio</th>
                                             <th className="p-2 text-left">Inventario</th>
                                             <th className="p-2 text-left">Acciones</th>
