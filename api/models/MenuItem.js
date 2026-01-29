@@ -14,14 +14,14 @@ const menuItemSchema = new mongoose.Schema({
   precio: {
     type: Number,
     required: true,
-     min: 0 
+    min: 0
   },
   categoria: {
     type: String,
     required: true,
-    enum: ['Desayunos','Almuerzos','Cenas', 'Bebidas', 'Postres', 'Entradas', 'Platos Principales'],
+    enum: ['Desayunos', 'Almuerzos', 'Cenas', 'Bebidas', 'Postres', 'Entradas', 'Platos Principales', 'Parrillas', 'Alitas', 'Hamburguesas', 'Barista', 'Bartender', 'Sandwiches'],
   },
-  inventory: { 
+  inventory: {
     type: Number,
     default: 0,
     min: 0

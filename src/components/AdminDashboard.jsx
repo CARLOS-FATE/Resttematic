@@ -13,11 +13,13 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const AdminDashboard = ({ userRole }) => {
     const auth = useAuth();
-    const [dailySales, setDailySales] = useState({ totalOrders: 0,
+    const [dailySales, setDailySales] = useState({
+        totalOrders: 0,
         incomeFromOrders: 0,
         totalReservations: 0,
         incomeFromReservations: 0,
-        totalIncome: 0 });
+        totalIncome: 0
+    });
     const [users, setUsers] = useState([]);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -28,7 +30,7 @@ const AdminDashboard = ({ userRole }) => {
     const [menuItems, setMenuItems] = useState([]);
     const [isMenuManagementVisible, setIsMenuManagementVisible] = useState(false);
     const [editingMenuItem, setEditingMenuItem] = useState(null);
-    const [newMenuItem, setNewMenuItem] = useState({ nombre: '', categoria: 'Desayunos', precio: '', inventory: '' });
+    const [newMenuItem, setNewMenuItem] = useState({ nombre: '', categoria: 'Desayunos', precio: '', inventory: '', description: '' });
     const [detailedSalesReport, setDetailedSalesReport] = useState([]);
     const [tables, setTables] = useState([]);
     const [isTableManagementVisible, setIsTableManagementVisible] = useState(false);
@@ -39,7 +41,7 @@ const AdminDashboard = ({ userRole }) => {
     const [isUserDeleteModalOpen, setIsUserDeleteModalOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
     const [reservations, setReservations] = useState([]);
-    
+
     // NUEVO: Estado para el modal de eliminación de platos
     const [isMenuItemDeleteModalOpen, setIsMenuItemDeleteModalOpen] = useState(false);
     const [menuItemToDelete, setMenuItemToDelete] = useState(null);
@@ -189,7 +191,7 @@ const AdminDashboard = ({ userRole }) => {
             });
             if (!response.ok) throw new Error('Error al crear el plato.');
             setSuccess('Plato creado con éxito.');
-            setNewMenuItem({ nombre: '', categoria: 'Desayunos', precio: '', inventory: '' });
+            setNewMenuItem({ nombre: '', categoria: 'Desayunos', precio: '', inventory: '', description: '' });
             fetchMenuItems();
         } catch (err) { setError(err.message); }
     };
@@ -213,14 +215,14 @@ const AdminDashboard = ({ userRole }) => {
             if (!response.ok) throw new Error('Error al actualizar el plato.');
 
             setSuccess('Plato actualizado con éxito.');
-            setNewMenuItem({ nombre: '', categoria: '', precio: '', inventory: '' });
+            setNewMenuItem({ nombre: '', categoria: '', precio: '', inventory: '', description: '' });
             setEditingMenuItem(null);
             fetchMenuItems();
         } catch (err) {
             setError(err.message);
         }
     };
-    
+
     // NUEVA LÓGICA: Eliminar plato con modal
     const handleDeleteMenuItem = (item) => {
         setMenuItemToDelete(item);
@@ -258,7 +260,7 @@ const AdminDashboard = ({ userRole }) => {
 
     const cancelEdit = () => {
         setEditingMenuItem(null);
-        setNewMenuItem({ nombre: '', categoria: '', precio: '', inventory: '' });
+        setNewMenuItem({ nombre: '', categoria: '', precio: '', inventory: '', description: '' });
     };
 
     const handleExport = () => {
@@ -552,7 +554,7 @@ const AdminDashboard = ({ userRole }) => {
                     </>
                 )}
             </section>
-            
+
             <section className="bg-white p-6 rounded-lg shadow-md mb-8">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-semibold">Gestión de Menú</h2>
@@ -586,7 +588,20 @@ const AdminDashboard = ({ userRole }) => {
                                     <option value="Cena">Cena</option>
                                     <option value="Postres">Postres</option>
                                     <option value="Bebidas">Bebidas</option>
+                                    <option value="Parrillas">Parrillas</option>
+                                    <option value="Alitas">Alitas</option>
+                                    <option value="Hamburguesas">Hamburguesas</option>
+                                    <option value="Barista">Barista</option>
+                                    <option value="Bartender">Bartender</option>
+                                    <option value="Sandwiches">Sandwiches</option>
                                 </select>
+                                <input
+                                    type="text"
+                                    placeholder="Descripción"
+                                    value={newMenuItem.description}
+                                    onChange={(e) => setNewMenuItem({ ...newMenuItem, description: e.target.value })}
+                                    className="p-2 border rounded"
+                                />
                                 <input
                                     type="number"
                                     placeholder="Precio"
@@ -647,7 +662,7 @@ const AdminDashboard = ({ userRole }) => {
                     </>
                 )}
             </section>
-            
+
             <section className="bg-white p-6 rounded-lg shadow-md mb-8 text-gray-800">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-semibold font-serif">Gestión de Salón</h2>
@@ -711,7 +726,7 @@ const AdminDashboard = ({ userRole }) => {
                                             </div>
                                             <p className="text-sm text-gray-600 mb-2 h-10">{table.descripcion || 'Sin descripción.'}</p>
                                             <div className="flex items-center text-sm text-gray-500">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0110 14a5 5 0 01-1.57-4.33A6.97 6.97 0 007 16c0 .34.024.673.07 1h5.86z"/></svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0110 14a5 5 0 01-1.57-4.33A6.97 6.97 0 007 16c0 .34.024.673.07 1h5.86z" /></svg>
                                                 <span>Capacidad: {table.capacidad}</span>
                                             </div>
                                         </div>
@@ -726,7 +741,7 @@ const AdminDashboard = ({ userRole }) => {
                     </div>
                 )}
             </section>
-            
+
             <ConfirmationModal
                 isOpen={isDeleteModalOpen}
                 message="¿Estás seguro de que quieres eliminar esta mesa? Esta acción no se puede deshacer."
