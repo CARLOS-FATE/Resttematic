@@ -644,6 +644,7 @@ const AdminDashboard = ({ userRole }) => {
                                             <tr key={item._id} className="border-b">
                                                 <td className="p-2">{item.nombre}</td>
                                                 <td className="p-2">{item.categoria}</td>
+                                                <td className="p-2 max-w-xs truncate" title={item.descripcion}>{item.descripcion || '-'}</td>
                                                 <td className="p-2">S/. {Number(item.precio).toFixed(2)}</td>
                                                 <td className="p-2">{item.inventory}</td>
                                                 <td className="p-2 space-x-2">
