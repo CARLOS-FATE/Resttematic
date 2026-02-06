@@ -6,7 +6,7 @@ export const menuItems = [
         name: "Parrillas",
         description: "Cortes al fuego vivo con trazos ahumados y texturas rústicas dignas de un campo de Arles.",
         image: "/portadacarta.jpeg",
-        price: "desde S/. 16",
+        price: "desde S/. 20.00",
         slug: "parrillas",
         dbCategory: "Parrillas",
         images: [
@@ -19,7 +19,7 @@ export const menuItems = [
         name: "Alitas",
         description: "Pequeñas pinceladas de sabor bañadas en una paleta de salsas vibrantes e intensas.",
         image: "/portadacarta.jpeg",
-        price: "desde S/. 19",
+        price: "desde S/. 20.00",
         slug: "alitas",
         dbCategory: "Alitas",
         images: [
@@ -32,7 +32,7 @@ export const menuItems = [
         name: "Hamburguesas & Sándwiches",
         description: "Una obra maestra de capas y sabores, construida artesanalmente sobre un lienzo de pan brioche.",
         image: "/portadacarta.jpeg",
-        price: "desde S/. 16",
+        price: "desde S/. 10.00",
         slug: "hamburguesas",
         dbCategory: "Hamburguesas",
         images: [
@@ -45,7 +45,7 @@ export const menuItems = [
         name: "BARISTA-CAFÉ",
         description: "Aromas envolventes como una noche estrellada. La pausa perfecta bajo la luz amarilla.",
         image: "/portadacarta.jpeg",
-        price: "desde S/. 19",
+        price: "desde S/. 6.00",
         slug: "baristacafeteria",
         dbCategory: "Barista",
         images: [
@@ -58,7 +58,7 @@ export const menuItems = [
         name: "BARTENDER-REFRESCOS",
         description: "Mezclas frescas y coloridas que capturan la alegría de los girasoles en cada sorbo.",
         image: "/portadacarta.jpeg",
-        price: "desde S/. 19",
+        price: "desde S/. 12.00",
         slug: "bartenderRefrescos",
         dbCategory: "Bartender",
         images: [
