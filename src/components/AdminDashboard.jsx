@@ -394,374 +394,376 @@ const AdminDashboard = ({ userRole }) => {
     };
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-4xl font-bold mb-6 text-center">Panel de {userRole === 'dueno' ? 'Dueno' : 'Administrador'}</h1>
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 transition-colors duration-300">
+            <div className="container mx-auto">
+                <h1 className="text-4xl font-bold mb-6 text-center text-gray-900 dark:text-white">Panel de {userRole === 'dueno' ? 'Dueno' : 'Administrador'}</h1>
 
-            {error && <p className="bg-red-100 text-red-700 p-2 rounded-md mb-4 text-center">{error}</p>}
-            {success && <p className="bg-green-100 text-green-700 p-2 rounded-md mb-4 text-center">{success}</p>}
+                {error && <p className="bg-red-100 text-red-700 p-2 rounded-md mb-4 text-center">{error}</p>}
+                {success && <p className="bg-green-100 text-green-700 p-2 rounded-md mb-4 text-center">{success}</p>}
 
-            <section className="bg-white p-6 rounded-lg shadow-md mb-8">
-                <h2 className="text-2xl font-semibold mb-4">Resumen del Día</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="bg-gray-100 p-4 rounded-md">
-                        <p className="text-gray-600">Pedidos Pagados</p>
-                        <p className="text-4xl font-bold">{dailySales.totalOrders}</p>
-                    </div>
-                    <div className="bg-gray-100 p-4 rounded-md">
-                        <p className="text-gray-600">Ingresos por Pedidos</p>
-                        <p className="text-2xl font-bold text-blue-600">S/ {dailySales.incomeFromOrders.toFixed(2)}</p>
-                    </div>
-                    <div className="bg-gray-100 p-4 rounded-md">
-                        <p className="text-gray-600">Ingresos por Reservas</p>
-                        <p className="text-2xl font-bold text-green-600">S/ {dailySales.incomeFromReservations.toFixed(2)}</p>
-                    </div>
-                </div>
-                <div className="mt-4 bg-gray-200 p-4 rounded-md text-center">
-                    <p className="text-gray-700 font-bold text-xl">Ingreso Total del Día</p>
-                    <p className="text-5xl font-bold text-gray-900">S/ {dailySales.totalIncome.toFixed(2)}</p>
-                </div>
-            </section>
-
-            <section className="bg-white p-6 rounded-lg shadow-md mb-8">
-                <h2 className="text-2xl font-semibold mb-4">Reporte de Ventas por Fecha</h2>
-                <form onSubmit={handleGenerateReport} className="mb-4">
-                    <div className="flex flex-wrap items-center gap-4">
-                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="p-2 border rounded" required />
-                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="p-2 border rounded" required />
-                        <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Generar Reporte</button>
-
-                        {detailedSalesReport.length > 0 && (
-                            <button type="button" onClick={handleExport} className="bg-green-600 text-white p-2 rounded hover:bg-green-700">
-                                Exportar a Excel
-                            </button>
-                        )}
-                    </div>
-                </form>
-                {detailedSalesReport.length > 0 && (
-                    <div className="mt-6">
-                        <h3 className="text-xl font-medium mb-2">Resumen del Período</h3>
-                        <p>Ingresos Totales: <span className="font-bold text-green-600">S/ {totalIncomeOfPeriod.toFixed(2)}</span></p>
-                        <div className="w-full mt-4" style={{ height: '400px' }}>
-                            <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
+                <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-8 transition-colors duration-300 text-gray-900 dark:text-white">
+                    <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Resumen del Día</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
+                            <p className="text-gray-600 dark:text-gray-300">Pedidos Pagados</p>
+                            <p className="text-4xl font-bold text-gray-900 dark:text-white">{dailySales.totalOrders}</p>
+                        </div>
+                        <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
+                            <p className="text-gray-600 dark:text-gray-300">Ingresos por Pedidos</p>
+                            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">S/ {dailySales.incomeFromOrders.toFixed(2)}</p>
+                        </div>
+                        <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
+                            <p className="text-gray-600 dark:text-gray-300">Ingresos por Reservas</p>
+                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">S/ {dailySales.incomeFromReservations.toFixed(2)}</p>
                         </div>
                     </div>
-                )}
-            </section>
+                    <div className="mt-4 bg-gray-200 dark:bg-gray-600 p-4 rounded-md text-center">
+                        <p className="text-gray-700 dark:text-gray-200 font-bold text-xl">Ingreso Total del Día</p>
+                        <p className="text-5xl font-bold text-gray-900 dark:text-white">S/ {dailySales.totalIncome.toFixed(2)}</p>
+                    </div>
+                </section>
 
-            <section className="bg-white p-6 rounded-lg shadow-md mb-8">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-semibold">Gestión de Usuarios</h2>
-                    <button
-                        onClick={() => setIsUserSectionVisible(!isUserSectionVisible)}
-                        className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 font-medium"
-                    >
-                        {isUserSectionVisible ? 'Ocultar' : 'Mostrar'}
-                    </button>
-                </div>
+                <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-8 transition-colors duration-300">
+                    <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">Reporte de Ventas por Fecha</h2>
+                    <form onSubmit={handleGenerateReport} className="mb-4">
+                        <div className="flex flex-wrap items-center gap-4">
+                            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white" required />
+                            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white" required />
+                            <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Generar Reporte</button>
 
-                {isUserSectionVisible && (
-                    <>
-                        <div className="mb-8">
-                            <h3 className="text-xl font-medium mb-2">Crear Nuevo Usuario</h3>
-                            <form onSubmit={handleCreateUser} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <input
-                                    type="text"
-                                    name="name"
-                                    placeholder="Nombre"
-                                    value={form.name}
-                                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                    className="p-2 border rounded"
-                                    required
-                                />
-                                <input
-                                    type="email"
-                                    name="email"
-                                    placeholder="Correo Electrónico"
-                                    value={form.email}
-                                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                    className="p-2 border rounded"
-                                    required
-                                />
-                                <input
-                                    type="password"
-                                    name="password"
-                                    placeholder="Contraseña"
-                                    value={form.password}
-                                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                                    className="p-2 border rounded"
-                                    required
-                                />
-                                <select
-                                    name="role"
-                                    value={form.role}
-                                    onChange={(e) => setForm({ ...form, role: e.target.value })}
-                                    className="p-2 border rounded"
-                                >
-                                    <option value="mesero">Mesero</option>
-                                    <option value="caja">Cajero</option>
-                                    <option value="cocinero">Cocinero</option>
-                                    {userRole === 'dueno' && <option value="administrador">Administrador</option>}
-                                </select>
-
-                                <button type="submit" className="col-span-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Crear Usuario</button>
-                            </form>
+                            {detailedSalesReport.length > 0 && (
+                                <button type="button" onClick={handleExport} className="bg-green-600 text-white p-2 rounded hover:bg-green-700">
+                                    Exportar a Excel
+                                </button>
+                            )}
                         </div>
-
-                        <div>
-                            <h3 className="text-xl font-medium mb-2">Usuarios Existentes</h3>
-                            <div className="overflow-x-auto">
-                                <table className="w-full table-auto">
-                                    <thead>
-                                        <tr className="bg-gray-200 text-gray-700">
-                                            <th className="p-2 text-left">Nombre</th>
-                                            <th className="p-2 text-left">Correo</th>
-                                            <th className="p-2 text-left">Rol</th>
-                                            <th className="p-2 text-left">Cambiar contraseña</th>
-                                            <th className="p-2 text-left">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {users.map(user => (
-                                            <tr key={user._id} className="border-b">
-                                                <td className="p-2">{user.name}</td>
-                                                <td className="p-2">{user.email}</td>
-                                                <td className="p-2 capitalize">{user.role}</td>
-                                                <td className="p-2">
-                                                    {user.role !== 'dueno' && (
-                                                        <button
-                                                            onClick={() => handleUpdate(user._id)}
-                                                            className="text-yellow-600 hover:text-yellow-800 transition-colors">
-                                                            Actualizar
-                                                        </button>
-                                                    )}
-                                                </td>
-                                                <td className="p-2 ">
-                                                    {user.role !== 'dueno' && (
-                                                        <button
-                                                            onClick={() => handleDeleteUser(user)}
-                                                            className="text-red-500 hover:text-red-700 transition-colors"
-                                                        >
-                                                            Eliminar
-                                                        </button>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                    </form>
+                    {detailedSalesReport.length > 0 && (
+                        <div className="mt-6">
+                            <h3 className="text-xl font-medium mb-2 text-gray-900 dark:text-white">Resumen del Período</h3>
+                            <p className="text-gray-800 dark:text-gray-200">Ingresos Totales: <span className="font-bold text-green-600 dark:text-green-400">S/ {totalIncomeOfPeriod.toFixed(2)}</span></p>
+                            <div className="w-full mt-4" style={{ height: '400px' }}>
+                                <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
                             </div>
                         </div>
-                    </>
-                )}
-            </section>
+                    )}
+                </section>
 
-            <section className="bg-white p-6 rounded-lg shadow-md mb-8">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-semibold">Gestión de Menú</h2>
-                    <button
-                        onClick={() => setIsMenuManagementVisible(!isMenuManagementVisible)}
-                        className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 font-medium"
-                    >
-                        {isMenuManagementVisible ? 'Ocultar' : 'Mostrar'}
-                    </button>
-                </div>
+                <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-8 transition-colors duration-300">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Gestión de Usuarios</h2>
+                        <button
+                            onClick={() => setIsUserSectionVisible(!isUserSectionVisible)}
+                            className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2 px-4 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 font-medium"
+                        >
+                            {isUserSectionVisible ? 'Ocultar' : 'Mostrar'}
+                        </button>
+                    </div>
 
-                {isMenuManagementVisible && (
-                    <>
-                        <div className="mb-8">
-                            <h3 className="text-xl font-medium mb-2">{editingMenuItem ? 'Editando Plato' : 'Agregar Nuevo Plato'}</h3>
-                            <form onSubmit={editingMenuItem ? handleUpdateMenuItem : handleCreateMenuItem} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                                <input
-                                    type="text"
-                                    placeholder="Nombre del Plato"
-                                    value={newMenuItem.nombre}
-                                    onChange={(e) => setNewMenuItem({ ...newMenuItem, nombre: e.target.value })}
-                                    className="p-2 border rounded" required
-                                />
-                                <select
-                                    value={newMenuItem.categoria}
-                                    onChange={(e) => setNewMenuItem({ ...newMenuItem, categoria: e.target.value })}
-                                    className="p-2 border rounded" required
-                                >
+                    {isUserSectionVisible && (
+                        <>
+                            <div className="mb-8">
+                                <h3 className="text-xl font-medium mb-2 text-gray-900 dark:text-white">Crear Nuevo Usuario</h3>
+                                <form onSubmit={handleCreateUser} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        placeholder="Nombre"
+                                        value={form.name}
+                                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                        className="p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white"
+                                        required
+                                    />
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        placeholder="Correo Electrónico"
+                                        value={form.email}
+                                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                        className="p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white"
+                                        required
+                                    />
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        placeholder="Contraseña"
+                                        value={form.password}
+                                        onChange={(e) => setForm({ ...form, password: e.target.value })}
+                                        className="p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white"
+                                        required
+                                    />
+                                    <select
+                                        name="role"
+                                        value={form.role}
+                                        onChange={(e) => setForm({ ...form, role: e.target.value })}
+                                        className="p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white"
+                                    >
+                                        <option value="mesero">Mesero</option>
+                                        <option value="caja">Cajero</option>
+                                        <option value="cocinero">Cocinero</option>
+                                        {userRole === 'dueno' && <option value="administrador">Administrador</option>}
+                                    </select>
 
-                                    <option value="Parrillas">Parrillas</option>
-                                    <option value="Alitas">Alitas</option>
-                                    <option value="Hamburguesas">Hamburguesas</option>
-                                    <option value="Barista">Barista</option>
-                                    <option value="Bartender">Bartender</option>
-                                    <option value="Sandwiches">Sandwiches</option>
-                                </select>
-                                <input
-                                    type="text"
-                                    placeholder="Descripción"
-                                    value={newMenuItem.descripcion}
-                                    onChange={(e) => setNewMenuItem({ ...newMenuItem, descripcion: e.target.value })}
-                                    className="p-2 border rounded"
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Precio"
-                                    value={newMenuItem.precio}
-                                    onChange={(e) => setNewMenuItem({ ...newMenuItem, precio: e.target.value })}
-                                    className="p-2 border rounded" required
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Inventario"
-                                    value={newMenuItem.inventory}
-                                    onChange={(e) => setNewMenuItem({ ...newMenuItem, inventory: e.target.value })}
-                                    className="p-2 border rounded" required
-                                />
-                                <div className="flex gap-2">
-                                    <button type="submit" className="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-                                        {editingMenuItem ? 'Actualizar' : 'Guardar'}
-                                    </button>
-                                    {editingMenuItem && (
-                                        <button type="button" onClick={cancelEdit} className="bg-gray-500 text-white p-2 rounded hover:bg-gray-600">
-                                            Cancelar
-                                        </button>
-                                    )}
-                                </div>
-                            </form>
-                        </div>
-
-                        <div>
-                            <h3 className="text-xl font-medium mb-2">Menú Actual</h3>
-                            <div className="overflow-x-auto">
-                                <table className="w-full table-auto">
-                                    <thead>
-                                        <tr className="bg-gray-200 text-gray-700">
-                                            <th className="p-2 text-left">Nombre</th>
-                                            <th className="p-2 text-left">Categoría</th>
-                                            <th className="p-2 text-left">Descripción</th>
-                                            <th className="p-2 text-left">Precio</th>
-                                            <th className="p-2 text-left">Inventario</th>
-                                            <th className="p-2 text-left">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {menuItems.map(item => (
-                                            <tr key={item._id} className="border-b">
-                                                <td className="p-2">{item.nombre}</td>
-                                                <td className="p-2">{item.categoria}</td>
-                                                <td className="p-2 max-w-xs truncate" title={item.descripcion}>{item.descripcion || '-'}</td>
-                                                <td className="p-2">S/. {Number(item.precio).toFixed(2)}</td>
-                                                <td className="p-2">{item.inventory}</td>
-                                                <td className="p-2 space-x-2">
-                                                    <button onClick={() => handleEditClick(item)} className="text-yellow-600 hover:text-yellow-800">Editar</button>
-                                                    <button onClick={() => handleDeleteMenuItem(item)} className="text-red-500 hover:text-red-700 transition-colors">Eliminar</button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                    <button type="submit" className="col-span-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Crear Usuario</button>
+                                </form>
                             </div>
-                        </div>
-                    </>
-                )}
-            </section>
 
-            <section className="bg-white p-6 rounded-lg shadow-md mb-8 text-gray-800">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-semibold ">Gestión de Salón</h2>
-                    <button
-                        onClick={() => setIsTableManagementVisible(!isTableManagementVisible)}
-                        className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 font-medium transition"
-                    >
-                        {isTableManagementVisible ? 'Cerrar Gestión' : 'Gestionar Mesas'}
-                    </button>
-                </div>
+                            <div>
+                                <h3 className="text-xl font-medium mb-2 text-gray-900 dark:text-white">Usuarios Existentes</h3>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full table-auto">
+                                        <thead>
+                                            <tr className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white">
+                                                <th className="p-2 text-left">Nombre</th>
+                                                <th className="p-2 text-left">Correo</th>
+                                                <th className="p-2 text-left">Rol</th>
+                                                <th className="p-2 text-left">Cambiar contraseña</th>
+                                                <th className="p-2 text-left">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {users.map(user => (
+                                                <tr key={user._id} className="border-b dark:border-gray-700 text-gray-900 dark:text-gray-300">
+                                                    <td className="p-2">{user.name}</td>
+                                                    <td className="p-2">{user.email}</td>
+                                                    <td className="p-2 capitalize">{user.role}</td>
+                                                    <td className="p-2">
+                                                        {user.role !== 'dueno' && (
+                                                            <button
+                                                                onClick={() => handleUpdate(user._id)}
+                                                                className="text-yellow-600 hover:text-yellow-800 transition-colors">
+                                                                Actualizar
+                                                            </button>
+                                                        )}
+                                                    </td>
+                                                    <td className="p-2 ">
+                                                        {user.role !== 'dueno' && (
+                                                            <button
+                                                                onClick={() => handleDeleteUser(user)}
+                                                                className="text-red-500 hover:text-red-700 transition-colors"
+                                                            >
+                                                                Eliminar
+                                                            </button>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </section>
 
-                {isTableManagementVisible && (
-                    <div className="border-t pt-6">
-                        <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-                            <h3 className="text-xl font-medium mb-4 font-serif">{editingTable ? `Editando: ${editingTable.nombre}` : 'Agregar Nueva Mesa'}</h3>
-                            <form onSubmit={editingTable ? handleUpdateTable : handleCreateTable} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                                <div className="md:col-span-1">
-                                    <label htmlFor="tableName" className="block text-sm font-medium text-gray-600 mb-1">Nombre</label>
-                                    <input id="tableName" type="text" placeholder="Ej: Mesa 5" value={newTable.nombre}
-                                        onChange={(e) => setNewTable({ ...newTable, nombre: e.target.value })}
-                                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required
+                <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-8 transition-colors duration-300">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Gestión de Menú</h2>
+                        <button
+                            onClick={() => setIsMenuManagementVisible(!isMenuManagementVisible)}
+                            className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2 px-4 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 font-medium"
+                        >
+                            {isMenuManagementVisible ? 'Ocultar' : 'Mostrar'}
+                        </button>
+                    </div>
+
+                    {isMenuManagementVisible && (
+                        <>
+                            <div className="mb-8">
+                                <h3 className="text-xl font-medium mb-2 text-gray-900 dark:text-white">{editingMenuItem ? 'Editando Plato' : 'Agregar Nuevo Plato'}</h3>
+                                <form onSubmit={editingMenuItem ? handleUpdateMenuItem : handleCreateMenuItem} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                                    <input
+                                        type="text"
+                                        placeholder="Nombre del Plato"
+                                        value={newMenuItem.nombre}
+                                        onChange={(e) => setNewMenuItem({ ...newMenuItem, nombre: e.target.value })}
+                                        className="p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white" required
                                     />
-                                </div>
-                                <div className="md:col-span-1">
-                                    <label htmlFor="tableCapacity" className="block text-sm font-medium text-gray-600 mb-1">Capacidad</label>
-                                    <input id="tableCapacity" type="number" placeholder="Ej: 4" value={newTable.capacidad} min="1"
-                                        onChange={(e) => setNewTable({ ...newTable, capacidad: parseInt(e.target.value) || 1 })}
-                                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required
+                                    <select
+                                        value={newMenuItem.categoria}
+                                        onChange={(e) => setNewMenuItem({ ...newMenuItem, categoria: e.target.value })}
+                                        className="p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white" required
+                                    >
+
+                                        <option value="Parrillas">Parrillas</option>
+                                        <option value="Alitas">Alitas</option>
+                                        <option value="Hamburguesas">Hamburguesas</option>
+                                        <option value="Barista">Barista</option>
+                                        <option value="Bartender">Bartender</option>
+                                        <option value="Sandwiches">Sandwiches</option>
+                                    </select>
+                                    <input
+                                        type="text"
+                                        placeholder="Descripción"
+                                        value={newMenuItem.descripcion}
+                                        onChange={(e) => setNewMenuItem({ ...newMenuItem, descripcion: e.target.value })}
+                                        className="p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white"
                                     />
-                                </div>
-                                <div className="md:col-span-2">
-                                    <label htmlFor="tableDescription" className="block text-sm font-medium text-gray-600 mb-1">Descripción</label>
-                                    <input id="tableDescription" type="text" placeholder="Ej: Junto a la ventana" value={newTable.descripcion}
-                                        onChange={(e) => setNewTable({ ...newTable, descripcion: e.target.value })}
-                                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                    <input
+                                        type="number"
+                                        placeholder="Precio"
+                                        value={newMenuItem.precio}
+                                        onChange={(e) => setNewMenuItem({ ...newMenuItem, precio: e.target.value })}
+                                        className="p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white" required
                                     />
-                                </div>
-                                <div className="md:col-span-4 flex justify-end gap-2 mt-2">
-                                    {editingTable && (
-                                        <button type="button" onClick={cancelEditTable} className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition">
-                                            Cancelar
+                                    <input
+                                        type="number"
+                                        placeholder="Inventario"
+                                        value={newMenuItem.inventory}
+                                        onChange={(e) => setNewMenuItem({ ...newMenuItem, inventory: e.target.value })}
+                                        className="p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white" required
+                                    />
+                                    <div className="flex gap-2">
+                                        <button type="submit" className="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                                            {editingMenuItem ? 'Actualizar' : 'Guardar'}
                                         </button>
-                                    )}
-                                    <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
-                                        {editingTable ? 'Actualizar Mesa' : 'Guardar Mesa'}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                        <div>
-                            <h3 className="text-xl font-medium mb-4 font-serif">Mesas Actuales</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                {tables.map(table => (
-                                    <div key={table._id} className="border rounded-lg p-4 flex flex-col justify-between hover:shadow-lg transition">
-                                        <div>
-                                            <div className="flex justify-between items-center mb-2">
-                                                <h4 className="font-bold text-lg">{table.nombre}</h4>
-                                                <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${table.estado === 'disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                                    {table.estado}
-                                                </span>
-                                            </div>
-                                            <p className="text-sm text-gray-600 mb-2 h-10">{table.descripcion || 'Sin descripción.'}</p>
-                                            <div className="flex items-center text-sm text-gray-500">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0110 14a5 5 0 01-1.57-4.33A6.97 6.97 0 007 16c0 .34.024.673.07 1h5.86z" /></svg>
-                                                <span>Capacidad: {table.capacidad}</span>
-                                            </div>
-                                        </div>
-                                        <div className="border-t mt-4 pt-4 flex justify-end space-x-2">
-                                            <button onClick={() => startEditTable(table)} className="text-sm font-medium text-yellow-600 hover:text-yellow-800">Editar</button>
-                                            <button onClick={() => handleDeleteTable(table._id)} className="text-sm font-medium text-red-500 hover:text-red-700">Eliminar</button>
-                                        </div>
+                                        {editingMenuItem && (
+                                            <button type="button" onClick={cancelEdit} className="bg-gray-500 text-white p-2 rounded hover:bg-gray-600">
+                                                Cancelar
+                                            </button>
+                                        )}
                                     </div>
-                                ))}
+                                </form>
+                            </div>
+
+                            <div>
+                                <h3 className="text-xl font-medium mb-2 text-gray-900 dark:text-white">Menú Actual</h3>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full table-auto">
+                                        <thead>
+                                            <tr className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white">
+                                                <th className="p-2 text-left">Nombre</th>
+                                                <th className="p-2 text-left">Categoría</th>
+                                                <th className="p-2 text-left">Descripción</th>
+                                                <th className="p-2 text-left">Precio</th>
+                                                <th className="p-2 text-left">Inventario</th>
+                                                <th className="p-2 text-left">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {menuItems.map(item => (
+                                                <tr key={item._id} className="border-b dark:border-gray-700 text-gray-900 dark:text-gray-300">
+                                                    <td className="p-2">{item.nombre}</td>
+                                                    <td className="p-2">{item.categoria}</td>
+                                                    <td className="p-2 max-w-xs truncate" title={item.descripcion}>{item.descripcion || '-'}</td>
+                                                    <td className="p-2">S/. {Number(item.precio).toFixed(2)}</td>
+                                                    <td className="p-2">{item.inventory}</td>
+                                                    <td className="p-2 space-x-2">
+                                                        <button onClick={() => handleEditClick(item)} className="text-yellow-600 hover:text-yellow-800">Editar</button>
+                                                        <button onClick={() => handleDeleteMenuItem(item)} className="text-red-500 hover:text-red-700 transition-colors">Eliminar</button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </section>
+
+                <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-8 text-gray-800 dark:text-gray-100 transition-colors duration-300">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-semibold ">Gestión de Salón</h2>
+                        <button
+                            onClick={() => setIsTableManagementVisible(!isTableManagementVisible)}
+                            className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2 px-4 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 font-medium transition"
+                        >
+                            {isTableManagementVisible ? 'Cerrar Gestión' : 'Gestionar Mesas'}
+                        </button>
+                    </div>
+
+                    {isTableManagementVisible && (
+                        <div className="border-t dark:border-gray-700 pt-6">
+                            <div className="mb-8 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <h3 className="text-xl font-medium mb-4 font-serif text-gray-900 dark:text-white">{editingTable ? `Editando: ${editingTable.nombre}` : 'Agregar Nueva Mesa'}</h3>
+                                <form onSubmit={editingTable ? handleUpdateTable : handleCreateTable} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                    <div className="md:col-span-1">
+                                        <label htmlFor="tableName" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Nombre</label>
+                                        <input id="tableName" type="text" placeholder="Ej: Mesa 5" value={newTable.nombre}
+                                            onChange={(e) => setNewTable({ ...newTable, nombre: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white" required
+                                        />
+                                    </div>
+                                    <div className="md:col-span-1">
+                                        <label htmlFor="tableCapacity" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Capacidad</label>
+                                        <input id="tableCapacity" type="number" placeholder="Ej: 4" value={newTable.capacidad} min="1"
+                                            onChange={(e) => setNewTable({ ...newTable, capacidad: parseInt(e.target.value) || 1 })}
+                                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white" required
+                                        />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label htmlFor="tableDescription" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Descripción</label>
+                                        <input id="tableDescription" type="text" placeholder="Ej: Junto a la ventana" value={newTable.descripcion}
+                                            onChange={(e) => setNewTable({ ...newTable, descripcion: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-4 flex justify-end gap-2 mt-2">
+                                        {editingTable && (
+                                            <button type="button" onClick={cancelEditTable} className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition">
+                                                Cancelar
+                                            </button>
+                                        )}
+                                        <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                                            {editingTable ? 'Actualizar Mesa' : 'Guardar Mesa'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-medium mb-4 font-serif text-gray-900 dark:text-white">Mesas Actuales</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    {tables.map(table => (
+                                        <div key={table._id} className="border dark:border-gray-700 rounded-lg p-4 flex flex-col justify-between hover:shadow-lg transition bg-white dark:bg-gray-800">
+                                            <div>
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <h4 className="font-bold text-lg text-gray-900 dark:text-white">{table.nombre}</h4>
+                                                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${table.estado === 'disponible' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
+                                                        {table.estado}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 h-10">{table.descripcion || 'Sin descripción.'}</p>
+                                                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0110 14a5 5 0 01-1.57-4.33A6.97 6.97 0 007 16c0 .34.024.673.07 1h5.86z" /></svg>
+                                                    <span>Capacidad: {table.capacidad}</span>
+                                                </div>
+                                            </div>
+                                            <div className="border-t mt-4 pt-4 flex justify-end space-x-2">
+                                                <button onClick={() => startEditTable(table)} className="text-sm font-medium text-yellow-600 hover:text-yellow-800">Editar</button>
+                                                <button onClick={() => handleDeleteTable(table._id)} className="text-sm font-medium text-red-500 hover:text-red-700">Eliminar</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
-            </section>
+                    )}
+                </section>
 
-            <ConfirmationModal
-                isOpen={isDeleteModalOpen}
-                message="¿Estás seguro de que quieres eliminar esta mesa? Esta acción no se puede deshacer."
-                onConfirm={confirmDeleteTable}
-                onCancel={cancelDeleteTable}
-            />
+                <ConfirmationModal
+                    isOpen={isDeleteModalOpen}
+                    message="¿Estás seguro de que quieres eliminar esta mesa? Esta acción no se puede deshacer."
+                    onConfirm={confirmDeleteTable}
+                    onCancel={cancelDeleteTable}
+                />
 
-            <ConfirmationModal
-                isOpen={isUserDeleteModalOpen}
-                message={`¿Estás seguro de que quieres eliminar al usuario "${userToDelete?.name}"? Esta acción no se puede deshacer.`}
-                onConfirm={confirmDeleteUser}
-                onCancel={cancelDeleteUser}
-            />
+                <ConfirmationModal
+                    isOpen={isUserDeleteModalOpen}
+                    message={`¿Estás seguro de que quieres eliminar al usuario "${userToDelete?.name}"? Esta acción no se puede deshacer.`}
+                    onConfirm={confirmDeleteUser}
+                    onCancel={cancelDeleteUser}
+                />
 
-            <ConfirmationModal
-                isOpen={isMenuItemDeleteModalOpen}
-                message={`¿Estás seguro de que quieres eliminar el plato "${menuItemToDelete?.nombre}"? Esta acción no se puede deshacer.`}
-                onConfirm={confirmDeleteMenuItem}
-                onCancel={cancelDeleteMenuItem}
-            />
+                <ConfirmationModal
+                    isOpen={isMenuItemDeleteModalOpen}
+                    message={`¿Estás seguro de que quieres eliminar el plato "${menuItemToDelete?.nombre}"? Esta acción no se puede deshacer.`}
+                    onConfirm={confirmDeleteMenuItem}
+                    onCancel={cancelDeleteMenuItem}
+                />
 
-            <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+                <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+            </div>
         </div>
     );
 };
