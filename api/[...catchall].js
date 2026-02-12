@@ -440,6 +440,28 @@ app.post('/api/reservations', async (req, res) => {
     }
 });
 
+app.put('/api/reservations/:id/confirm-payment-with-details', auth(['caja', 'administrador', 'dueno']), async (req, res) => {
+    try {
+        const { montoPagado, comprobantePago, notasCajero } = req.body;
+        const reservation = await Reservation.findById(req.params.id);
+
+        if (!reservation) {
+            return res.status(404).json({ message: 'Reserva no encontrada.' });
+        }
+
+        reservation.montoPagado = montoPagado;
+        reservation.comprobantePago = comprobantePago;
+        reservation.notasCajero = notasCajero;
+        reservation.estadoPago = 'confirmado'; // Actualizar estado
+
+        await reservation.save();
+
+        res.status(200).json({ message: 'Pago de reserva confirmado con éxito.', reservation });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al confirmar el pago de la reserva.', error: error.message });
+    }
+});
+
 
 // ===========================================
 // RUTAS DE REPORTES (SALES)

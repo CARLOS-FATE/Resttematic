@@ -232,11 +232,17 @@ const CashierDashboard = () => {
                                         <button
                                             onClick={() => {
                                                 setSelectedReservation(res);
-                                                setPaymentDetails({ montoPagado: '', comprobantePago: '', notasCajero: '' }); // Resetea el formulario
+                                                // Autogenerar ID de transacción
+                                                const autoGenId = `TXN-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+                                                setPaymentDetails({
+                                                    montoPagado: '',
+                                                    comprobantePago: autoGenId,
+                                                    notasCajero: ''
+                                                });
                                             }}
                                             className="mt-4 w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 transition"
                                         >
-                                            Registrar  Pago
+                                            Registrar Pago
                                         </button>
                                     </div>
                                 ))
