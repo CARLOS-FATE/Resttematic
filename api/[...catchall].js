@@ -370,6 +370,13 @@ app.get('/api/reservations/confirmed-for-today', auth(['mesero', 'administrador'
 
 app.get('/api/reservations/pending-payment', auth(['caja', 'administrador', 'dueno']), async (req, res) => {
     try {
+        // Eliminar reservas pendientes con más de 4 horas de antigüedad
+        const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000);
+        await Reservation.deleteMany({
+            estadoPago: 'pendiente',
+            createdAt: { $lt: fourHoursAgo }
+        });
+
         const pendingReservations = await Reservation.find({ estadoPago: 'pendiente' }).sort({ fecha: 1, hora: 1 });
         res.status(200).json(pendingReservations);
     } catch (error) { res.status(500).json({ message: 'Error al obtener las reservas pendientes de pago.' }); }
@@ -389,6 +396,16 @@ app.post('/api/reservations', async (req, res) => {
     try {
         // 1. Extraemos todos los datos del formulario que vienen en el body
         const { nombreCliente, email, telefono, fecha, hora, numeroPersonas, mesaId } = req.body;
+
+        // Validar horario de reserva (06:00 - 23:59)
+        const [hours, minutes] = hora.split(':').map(Number);
+        const timeInMinutes = hours * 60 + minutes;
+        const openTime = 6 * 60; // 06:00
+        const closeTime = 23 * 60 + 59; // 23:59
+
+        if (timeInMinutes < openTime || timeInMinutes > closeTime) {
+            return res.status(400).json({ message: "Las reservas solo están permitidas entre las 06:00 y las 23:59." });
+        }
 
         // 2. Validación simple para asegurar que se seleccionó una mesa
         if (!mesaId) {
@@ -432,7 +449,7 @@ app.post('/api/reservations', async (req, res) => {
 
         // 5. Guardamos en la base de datos y respondemos al cliente
         await newReservation.save();
-        res.status(201).json({ message: '¡Reserva creada con éxito! Nos pondremos en contacto para confirmar el pago.', reservation: newReservation });
+        res.status(201).json({ message: '¡Reserva creada con éxito! Nos pondremos en contacto para confirmar el pago. Recuerda que tienes 4 horas para realizar el pago o la reserva se cancelará automáticamente.', reservation: newReservation });
 
     } catch (error) {
         // Si hay algún otro error (ej. de validación del modelo), lo capturamos aquí

@@ -232,8 +232,12 @@ const CashierDashboard = () => {
                                         <button
                                             onClick={() => {
                                                 setSelectedReservation(res);
-                                                // Autogenerar ID de transacción
-                                                const autoGenId = `TXN-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+                                                // Autogenerar ID de transacción: 16 caracteres alfanuméricos
+                                                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                                                let autoGenId = '';
+                                                for (let i = 0; i < 16; i++) {
+                                                    autoGenId += chars.charAt(Math.floor(Math.random() * chars.length));
+                                                }
                                                 setPaymentDetails({
                                                     montoPagado: '',
                                                     comprobantePago: autoGenId,
