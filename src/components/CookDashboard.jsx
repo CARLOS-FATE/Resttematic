@@ -17,6 +17,53 @@ const CookDashboard = () => {
 
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState('');
+  
+  // Auditory settings
+  const [isAudioEnabled, setIsAudioEnabled] = useState(false);
+  const [knownPendingIds, setKnownPendingIds] = useState([]);
+
+  const playNotificationSound = useCallback(() => {
+    if (!isAudioEnabled) return;
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioContext();
+        
+        const playTone = (freq, startTime, duration) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = freq;
+            osc.type = 'triangle';
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(1, startTime + 0.05);
+            gain.gain.setValueAtTime(1, startTime + duration - 0.05);
+            gain.gain.linearRampToValueAtTime(0, startTime + duration);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        };
+
+        const now = ctx.currentTime;
+        playTone(660, now, 0.15);       // Note E5
+        playTone(880, now + 0.20, 0.3); // Note A5 (Double chime!)
+    } catch(e) {
+        console.log("Audio synthesis failed", e);
+    }
+  }, [isAudioEnabled]);
+
+  useEffect(() => {
+      const currentPending = orders.filter(o => o.estado === 'pendiente').map(o => o._id);
+      
+      if (knownPendingIds.length > 0) {
+          const newArrivals = currentPending.filter(id => !knownPendingIds.includes(id));
+          if (newArrivals.length > 0) {
+              playNotificationSound();
+          }
+      }
+      // Actualizamos ids conocidos siempre
+      setKnownPendingIds(currentPending);
+  }, [orders]); // Se ejecuta al actualizar 'orders'
+
   const fetchOrders = useCallback(async () => {
     if (token) { // Verificamos que el token exista antes de la llamada
       try {
@@ -68,7 +115,17 @@ const CookDashboard = () => {
   return (
     <div className="bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-300">
       <div className="container mx-auto p-4 md:p-6">
-        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center text-gray-800 dark:text-white">Comandas de Cocina</h1>
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 border-b dark:border-gray-700 pb-4">
+             <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800 dark:text-white">Comandas de Cocina</h1>
+             
+             <button 
+                 onClick={() => setIsAudioEnabled(!isAudioEnabled)}
+                 className={`mt-4 md:mt-0 flex items-center px-4 py-2 font-bold rounded-lg shadow transition ${isAudioEnabled ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300 hover:bg-red-200'}`}
+             >
+                 <span className="mr-2 text-xl">{isAudioEnabled ? '🔊' : '🔇'}</span>
+                 {isAudioEnabled ? 'Sonido Activado' : 'Activar Sonido'}
+             </button>
+        </div>
         {error && <p className="bg-red-100 text-red-700 p-3 rounded-md mb-4 text-center">{error}</p>}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
