@@ -298,6 +298,52 @@ const WaiterDashboard = ({ userRole }) => {
     const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
     const [pendingOrderItems, setPendingOrderItems] = useState([]);
 
+    // Waiter Audio Notification State
+    const [isAudioEnabled, setIsAudioEnabled] = useState(false);
+    const [knownReadyIds, setKnownReadyIds] = useState([]);
+
+    const playReadySound = useCallback(() => {
+        if (!isAudioEnabled) return;
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioContext();
+            
+            const playTone = (freq, startTime, duration) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.value = freq;
+                osc.type = 'sine'; // Softer chime for waiter
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(1, startTime + 0.05);
+                gain.gain.setValueAtTime(1, startTime + duration - 0.05);
+                gain.gain.linearRampToValueAtTime(0, startTime + duration);
+                osc.start(startTime);
+                osc.stop(startTime + duration);
+            };
+
+            const now = ctx.currentTime;
+            playTone(523.25, now, 0.15);      // C5
+            playTone(659.25, now + 0.15, 0.15); // E5
+            playTone(783.99, now + 0.30, 0.4); // G5 (Success arpeggio!)
+        } catch(e) {
+            console.log("Audio synthesis failed", e);
+        }
+    }, [isAudioEnabled]);
+
+    useEffect(() => {
+        const currentReady = orders.filter(o => o.estado === 'listo para pagar' && !o.esPagado).map(o => o._id);
+        
+        if (knownReadyIds.length > 0) {
+            const newArrivals = currentReady.filter(id => !knownReadyIds.includes(id));
+            if (newArrivals.length > 0) {
+                playReadySound();
+            }
+        }
+        setKnownReadyIds(currentReady);
+    }, [orders]);
+
   if (!auth) return <p className="p-8 text-center text-gray-500">Inicializando...</p>;
 
   const { token, authHeader } = auth;
@@ -533,7 +579,16 @@ useEffect(() => {
   return (
     <>
     <div className="container mx-auto p-4">
-        <h1 className="text-4xl font-bold mb-6 text-center">Dashboard del Mesero</h1>
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 border-b pb-4">
+            <h1 className="text-4xl font-bold text-center text-gray-800">Dashboard del Mesero</h1>
+             <button 
+                 onClick={() => setIsAudioEnabled(!isAudioEnabled)}
+                 className={`mt-4 md:mt-0 flex items-center px-4 py-2 font-bold rounded-lg shadow transition ${isAudioEnabled ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300 hover:bg-red-200'}`}
+             >
+                 <span className="mr-2 text-xl">{isAudioEnabled ? '🔊' : '🔇'}</span>
+                 {isAudioEnabled ? 'Sonido Activado' : 'Activar Sonido de Pedidos'}
+             </button>
+        </div>
         
         {error && <p className="bg-red-100 text-red-700 p-2 rounded-md mb-4 text-center">{error}</p>}
         {success && <p className="bg-green-100 text-green-700 p-2 rounded-md mb-4 text-center">{success}</p>}
@@ -761,46 +816,85 @@ useEffect(() => {
                         </button>
                     </form>
                 </section>
-                <section className="bg-white p-6 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-semibold mb-4">Mis Pedidos</h2>
-                    <div className="overflow-x-auto">
-                        <table className="w-full table-auto">
+                <section className="bg-white p-6 rounded-lg shadow-xl border border-gray-100 mt-8">
+                    <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Gestión de Mis Pedidos</h2>
+                    <div className="overflow-x-auto rounded-lg shadow-sm">
+                        <table className="w-full text-left border-collapse bg-white">
                             <thead>
-                                <tr className="bg-gray-200 text-gray-700">
-                                    <th className="p-2 text-left">Mesa</th>
-                                    <th className="p-2 text-left">Items</th>
-                                    <th className="p-2 text-left">Estado</th>
-                                    <th className="p-2 text-left">Total</th>
-                                    <th className="p-2 text-left">Acciones</th>
+                                <tr className="bg-gray-50 border-b-2 border-gray-200">
+                                    <th className="p-4 font-semibold text-gray-600 uppercase tracking-wider text-sm">Mesa</th>
+                                    <th className="p-4 font-semibold text-gray-600 uppercase tracking-wider text-sm">Resumen de Items</th>
+                                    <th className="p-4 font-semibold text-gray-600 uppercase tracking-wider text-sm">Estado Actual</th>
+                                    <th className="p-4 font-semibold text-gray-600 uppercase tracking-wider text-sm">Monto Total</th>
+                                    <th className="p-4 font-semibold text-gray-600 uppercase tracking-wider text-sm text-center">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {orders.map(order => (
-                                    <tr key={order._id} className="border-b">
-                                        <td className="p-2">{order.numeroMesa}</td>
-                                        <td className="p-2">{order.items.map(item => `${item.cantidad}x ${item.nombre}`).join(', ')}</td>
-                                        <td className="p-2 capitalize">
-                                            {order.esPagado ? 'Pagado' : order.estado}
-                                        </td>
-                                        <td className="p-2 font-bold whitespace-nowrap">S/. {order.total.toFixed(2)}</td>
-                                        <td className="p-2 space-x-2">
-                                            <button 
-                                                onClick={() => handleEditOrder(order)} 
-                                                className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-                                            >
-                                                <PencilSquareIcon className="h-5 w-5 mr-1" />
-                                                <span>Editar</span>
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDeleteOrder(order._id)} 
-                                                className="flex items-center text-red-600 hover:text-red-800 transition-colors mt-2"
-                                            >
-                                                <TrashIcon className="h-5 w-5 mr-1" />
-                                                <span>Eliminar</span>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
+                            <tbody className="divide-y divide-gray-100 text-gray-800">
+                                {orders.map(order => {
+                                    let statusColor = "bg-gray-100 text-gray-800";
+                                    let statusText = order.estado;
+                                    
+                                    if (order.esPagado) {
+                                        statusColor = "bg-green-100 text-green-800 border-green-200";
+                                        statusText = "Completado y Pagado";
+                                    } else if (order.estado === 'pendiente') {
+                                        statusColor = "bg-red-100 text-red-800 border-red-200";
+                                    } else if (order.estado === 'en preparacion') {
+                                        statusColor = "bg-blue-100 text-blue-800 border-blue-200";
+                                    } else if (order.estado === 'listo para pagar') {
+                                        statusColor = "bg-yellow-100 text-yellow-800 border-yellow-200 shadow-sm animate-pulse-slow";
+                                        statusText = "¡Listo, servir/cobrar!";
+                                    }
+
+                                    return (
+                                        <tr key={order._id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="p-4 whitespace-nowrap">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-700 shadow-inner">
+                                                        {order.numeroMesa.replace(/\D/g,'') || 'M'}
+                                                    </span>
+                                                    <span className="font-bold text-md text-gray-700">{order.numeroMesa}</span>
+                                                </div>
+                                            </td>
+                                            <td className="p-4 max-w-sm">
+                                                <div className="flex flex-col gap-1">
+                                                    {order.items.map((item, i) => (
+                                                        <div key={i} className="text-sm border-l-2 border-gray-300 pl-2 py-0.5">
+                                                            <span className="font-bold text-blue-600 mr-1">{item.cantidad}x</span> 
+                                                            <span className="text-gray-700 font-medium">{item.nombre}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                            <td className="p-4 whitespace-nowrap">
+                                                <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide border ${statusColor}`}>
+                                                    {statusText}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 font-extrabold text-lg text-gray-800 whitespace-nowrap">
+                                                S/. {order.total.toFixed(2)}
+                                            </td>
+                                            <td className="p-4 whitespace-nowrap">
+                                                <div className="flex flex-col items-center justify-center space-y-2">
+                                                    <button 
+                                                        onClick={() => handleEditOrder(order)} 
+                                                        disabled={['listo para pagar', 'pagado'].includes(order.estado) || order.esPagado}
+                                                        className="flex items-center text-sm font-semibold bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-200 transition-colors w-24 justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                                                    >
+                                                        <PencilSquareIcon className="h-4 w-4 mr-1" /> Editar
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteOrder(order._id)} 
+                                                        disabled={order.esPagado}
+                                                        className="flex items-center text-sm font-semibold bg-red-50 text-red-600 px-3 py-1.5 rounded-md hover:bg-red-100 transition-colors w-24 justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                                                    >
+                                                        <TrashIcon className="h-4 w-4 mr-1" /> Anular
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
