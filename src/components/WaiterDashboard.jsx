@@ -23,6 +23,129 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children }) => {
     );
 };
 
+const ParrillaComboModal = ({ isOpen, onClose, comboItem, meatCount, onAddCombo }) => {
+    // Array of meat objects. We use primitive initialization inside the component 
+    // to map over them properly.
+    const [meats, setMeats] = useState([]);
+    const [guarnicion, setGuarnicion] = useState('Papa Frita');
+
+    useEffect(() => {
+        if (isOpen) {
+            setMeats(Array.from({ length: meatCount }, () => ({ tipo: '', coccion: '' })));
+            setGuarnicion('Papa Frita');
+        }
+    }, [isOpen, meatCount]);
+
+    if (!isOpen || !comboItem) return null;
+
+    const handleMeatChange = (index, field, value) => {
+        const newMeats = [...meats];
+        newMeats[index][field] = value;
+        // Sanitary enforcement: Pollo MUST be fully cooked.
+        if (field === 'tipo') {
+            if (value === 'Pollo') {
+                newMeats[index].coccion = 'Bien cocido';
+            } else if (value !== 'Pollo' && newMeats[index].coccion === 'Bien cocido') {
+                // optional: reset or let it be 'Bien cocido' for Res/Cerdo too. Letting it be is fine,
+                // but usually better feeling if it clears to force read.
+                newMeats[index].coccion = ''; 
+            }
+        }
+        setMeats(newMeats);
+    };
+
+    const isFormValid = () => {
+        if (!guarnicion) return false;
+        return meats.every((meat) => {
+            if (!meat.tipo) return false;
+            if (meat.tipo === 'Pollo') return meat.coccion === 'Bien cocido';
+            return ['Inglés', 'Medio', '3/4', 'Bien cocido'].includes(meat.coccion);
+        });
+    };
+
+    const handleAdd = () => {
+        if (!isFormValid()) return;
+        
+        // Exact ticket instruction building
+        const meatsDesc = meats.map((m, i) => `1x ${m.tipo} (${m.coccion})`).join(', ');
+        const fullName = `${comboItem.nombre} [🍟 ${guarnicion}] | 🥩 ${meatsDesc}`;
+
+        onAddCombo({
+            inventoryItemId: comboItem._id,
+            price: comboItem.precio,
+            name: fullName,
+            variant: 'Parrilla_Especial'
+        });
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center">
+            <div className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+                <h3 className="text-2xl font-bold text-red-900 mb-2">Armar {comboItem.nombre}</h3>
+                
+                <div className="mb-4 bg-gray-50 p-3 rounded border">
+                    <h4 className="font-semibold text-gray-800 mb-2">1. Guarnición Base:</h4>
+                    <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" value="Papa Frita" checked={guarnicion === 'Papa Frita'} onChange={(e) => setGuarnicion(e.target.value)} />
+                            <span className="font-medium">🍟 Papa Frita</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" value="Papa Sancochada" checked={guarnicion === 'Papa Sancochada'} onChange={(e) => setGuarnicion(e.target.value)} />
+                            <span className="font-medium">🥔 Papa Sancochada</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div className="space-y-4 mb-6">
+                    <h4 className="font-semibold text-gray-800 border-b pb-1">2. Configura las Carnes ({meatCount}):</h4>
+                    {meats.map((meat, index) => (
+                        <div key={index} className="p-4 border border-red-100 rounded-md bg-red-50 flex flex-col sm:flex-row gap-4 shadow-sm">
+                            <div className="flex-1">
+                                <label className="block text-sm font-bold text-red-800 mb-1">Tipo de Carne {index + 1}</label>
+                                <select 
+                                    value={meat.tipo} 
+                                    onChange={(e) => handleMeatChange(index, 'tipo', e.target.value)}
+                                    className="w-full p-2 border border-red-200 rounded outline-none focus:ring-2 focus:ring-red-400"
+                                >
+                                    <option value="">-- Seleccionar --</option>
+                                    <option value="Pollo">Pollo</option>
+                                    <option value="Res">Res</option>
+                                    <option value="Cerdo">Cerdo</option>
+                                </select>
+                            </div>
+                            <div className="flex-1">
+                                <label className="block text-sm font-bold text-red-800 mb-1">Término de Cocción</label>
+                                <select
+                                    value={meat.coccion}
+                                    onChange={(e) => handleMeatChange(index, 'coccion', e.target.value)}
+                                    disabled={meat.tipo === 'Pollo'}
+                                    className={`w-full p-2 border rounded outline-none focus:ring-2 focus:ring-red-400 ${meat.tipo === 'Pollo' ? 'bg-gray-200 text-gray-500 border-gray-300 font-semibold' : 'bg-white border-red-200'}`}
+                                >
+                                    <option value="">-- Término --</option>
+                                    <option value="Inglés">Inglés</option>
+                                    <option value="Medio">Medio</option>
+                                    <option value="3/4">3/4</option>
+                                    <option value="Bien cocido">Bien cocido</option>
+                                </select>
+                                {meat.tipo === 'Pollo' && <p className="text-xs text-red-600 mt-1 italic">*Pollo exige bien cocido de fábrica.</p>}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="flex justify-end gap-3 border-t pt-4">
+                    <button type="button" onClick={onClose} className="px-5 py-2 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300 transition">Cancelar</button>
+                    <button type="button" onClick={handleAdd} disabled={!isFormValid()} className="px-5 py-2 bg-red-600 text-white font-bold rounded-md disabled:bg-gray-400 hover:bg-red-700 transition">
+                        Agregar Variante al Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const ComboModal = ({ isOpen, onClose, alitasItems, onAddCombo }) => {
     const [selectedFlavors, setSelectedFlavors] = useState([]);
     const [guarnicion, setGuarnicion] = useState('Papa Frita');
@@ -47,12 +170,12 @@ const ComboModal = ({ isOpen, onClose, alitasItems, onAddCombo }) => {
         const f1 = selectedFlavors[0];
         const f2 = selectedFlavors[1];
         const maxPrice = Math.max(f1.precio, f2.precio);
-        const minAccepter = f1.precio < f2.precio ? f1 : f2; // descuenta el de menor precio en inventario (alita más común)
+        const minAccepter = f1.precio < f2.precio ? f1 : f2;
 
         onAddCombo({
             inventoryItemId: minAccepter._id,
             price: maxPrice,
-            name: `Combo Mixto (${f1.nombre.replace('Alitas ', '')} + ${f2.nombre.replace('Alitas ', '')})`,
+            name: `Combo Mixto (${f1.nombre.replace('Alitas ', '')} + ${f2.nombre.replace('Alitas ', '')}) [🍟 ${guarnicion}]`,
             variant: guarnicion
         });
         setSelectedFlavors([]);
@@ -166,6 +289,12 @@ const WaiterDashboard = ({ userRole }) => {
     const [tableToFree, setTableToFree] = useState(null);
 
     const [isComboModalOpen, setIsComboModalOpen] = useState(false);
+    
+    // Parrilla Modal state
+    const [isParrillaModalOpen, setIsParrillaModalOpen] = useState(false);
+    const [activeParrillaCombo, setActiveParrillaCombo] = useState(null);
+    const [activeParrillaMeatCount, setActiveParrillaMeatCount] = useState(2);
+
     const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
     const [pendingOrderItems, setPendingOrderItems] = useState([]);
 
@@ -258,10 +387,10 @@ useEffect(() => {
           .filter(key => selectedItems[key]?.cantidad > 0)
           .map(key => {
             const data = selectedItems[key];
-            if (key.startsWith('COMBO|')) {
+            if (key.includes('COMBO|')) {
                 return {
-                    menuItemId: data.inventoryItemId, // Enviando el id menor para que descuente una unidad
-                    nombre: `${data.name} [${data.variant}]`,
+                    menuItemId: data.inventoryItemId,
+                    nombre: data.name, // Name is fully pre-formatted from the Modals!
                     cantidad: data.cantidad,
                     precioUnitario: data.price,
                 };
@@ -347,7 +476,9 @@ useEffect(() => {
   };
 
   const handleAddCombo = (comboData) => {
-      const key = `COMBO|${comboData.inventoryItemId}|${comboData.name}|${comboData.variant}`;
+      // Usar btoa or string parsing to uniquely identify the entire signature avoids collision if same variants are added exactly
+      const stringifiedCombo = JSON.stringify({nm: comboData.name, id: comboData.inventoryItemId});
+      const key = `COMBO|${stringifiedCombo}`;
       setSelectedItems(prev => ({
           ...prev,
           [key]: {
@@ -355,8 +486,19 @@ useEffect(() => {
               cantidad: (prev[key]?.cantidad || 0) + 1
           }
       }));
-      setSuccess(`Combo añadido visualmente. Revisa el pedido.`);
-      setTimeout(() => setSuccess(''), 3000);
+      setSuccess(`Agregado visualmente. Revisa el pedido.`);
+      setTimeout(() => setSuccess(''), 2000);
+  };
+
+  const handleOpenParrillaModal = (item) => {
+      const nameL = item.nombre.toLowerCase();
+      let meats = 2; // Default to 2
+      if (nameL.includes('girasol') || nameL.includes('3') || nameL.includes('tres')) meats = 3;
+      if (nameL.includes('4') || nameL.includes('cuatro')) meats = 4;
+      
+      setActiveParrillaCombo(item);
+      setActiveParrillaMeatCount(meats);
+      setIsParrillaModalOpen(true);
   };
   
   const getCategories = () => {
@@ -385,8 +527,8 @@ useEffect(() => {
 
   if (!token) return <p className="p-8 text-center text-gray-500 text-lg">Cargando autenticación...</p>;
 
-  // Function to show total selected lines in minimal format under Alitas category to prevent invisible items
-  const comboSelectedItemKeys = Object.keys(selectedItems).filter(k => k.startsWith('COMBO|'));
+  // Filtrar todos los items compuestos marcados por COMBO| para el carrito visual
+  const comboSelectedItemKeys = Object.keys(selectedItems).filter(k => k.includes('COMBO|'));
 
   return (
     <>
@@ -523,21 +665,21 @@ useEffect(() => {
                                 ))}
                             </div>
 
-                            {/* Mostrar carrito de combos dinámico solo si estamos en Alitas o hay combos */}
-                            {comboSelectedItemKeys.length > 0 && filterCategory === 'Alitas' && (
+                            {/* Mostrar carrito compuesto dinámico */}
+                            {comboSelectedItemKeys.length > 0 && (filterCategory === 'Alitas' || filterCategory === 'Parrillas') && (
                                 <div className="mb-4 bg-orange-50 rounded-md p-4 border border-orange-200">
-                                    <h4 className="font-bold text-orange-800 mb-2">Combos Añadidos:</h4>
+                                    <h4 className="font-bold text-orange-800 mb-2">Variantes Añadidas en esta categoría:</h4>
                                     <ul>
                                         {comboSelectedItemKeys.map(k => {
                                             const data = selectedItems[k];
                                             return (
-                                                <li key={k} className="flex justify-between border-b border-orange-100 py-1">
-                                                    <span className="text-sm">{data.cantidad}x {data.name} [{data.variant}]</span>
-                                                    <button type="button" onClick={() => handleItemQuantityChange(data.inventoryItemId, data.variant, 0)} className="text-red-500 font-bold px-2" onClickCapture={() => {
+                                                <li key={k} className="flex justify-between items-center border-b border-orange-100 py-1 gap-2">
+                                                    <span className="text-sm font-medium">{data.cantidad}x {data.name}</span>
+                                                    <button type="button" onClickCapture={() => {
                                                         const copy = { ...selectedItems };
                                                         delete copy[k];
                                                         setSelectedItems(copy);
-                                                    }}>X</button>
+                                                    }} className="text-red-500 font-bold px-2 whitespace-nowrap bg-red-100 rounded hover:bg-red-200">Quitar</button>
                                                 </li>
                                             );
                                         })}
@@ -562,8 +704,28 @@ useEffect(() => {
                                     const isParrillaOrAlita = filterCategory === 'Parrillas' || filterCategory === 'Alitas';
                                     
                                     if (isParrillaOrAlita) {
+                                        // LOGICA DE COMBOS ESPECIALES DE PARRILLA
+                                        if (filterCategory === 'Parrillas' && item.nombre.toLowerCase().includes('combo')) {
+                                            return (
+                                                <div key={item._id} className="bg-red-50 p-4 rounded-lg flex flex-col justify-between shadow-sm border border-red-200">
+                                                    <div className="mb-3 border-b border-red-100 pb-2 flex justify-between items-start">
+                                                        <p className="font-bold text-lg text-red-900">{item.nombre}</p>
+                                                        <p className="text-red-700 font-semibold bg-red-100 px-2 rounded">S/. {item.precio.toFixed(2)}</p>
+                                                    </div>
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => handleOpenParrillaModal(item)}
+                                                        className="w-full bg-red-600 text-white font-bold py-3 rounded-lg shadow-sm hover:bg-red-700 transition flex justify-center items-center gap-2 mt-2"
+                                                    >
+                                                        🥩 Armar Combo de Carnes
+                                                    </button>
+                                                </div>
+                                            );
+                                        }
+
+                                        // ITEMS NORMALES DE PARRILLA O ALITAS
                                         return (
-                                            <div key={item._id} className="bg-gray-50 p-4 rounded-lg flex flex-col justify-between shadow-sm">
+                                            <div key={item._id} className="bg-gray-50 p-4 rounded-lg flex flex-col justify-between shadow-sm border">
                                                 <div className="mb-3 border-b pb-2">
                                                     <p className="font-bold text-lg">{item.nombre}</p>
                                                     <p className="text-gray-600 text-md">S/. {item.precio.toFixed(2)}</p>
@@ -571,11 +733,11 @@ useEffect(() => {
                                                 <div className="space-y-3">
                                                     <div className="flex justify-between items-center text-sm font-medium">
                                                         <span>🥔 Papa Frita:</span>
-                                                        <input type="number" min="0" max={item.inventory} value={selectedItems[`${item._id}|Papa Frita`]?.cantidad || ''} placeholder="0" onChange={(e) => handleItemQuantityChange(item._id, 'Papa Frita', e.target.value)} className="w-16 p-2 border rounded-md text-center bg-white" />
+                                                        <input type="number" min="0" max={item.inventory} value={selectedItems[`${item._id}|Papa Frita`]?.cantidad || ''} placeholder="0" onChange={(e) => handleItemQuantityChange(item._id, 'Papa Frita', e.target.value)} className="w-16 p-2 border rounded-md text-center bg-white outline-none focus:ring-1" />
                                                     </div>
                                                     <div className="flex justify-between items-center text-sm font-medium">
                                                         <span>🥔 Papa Sancochada:</span>
-                                                        <input type="number" min="0" max={item.inventory} value={selectedItems[`${item._id}|Papa Sancochada`]?.cantidad || ''} placeholder="0" onChange={(e) => handleItemQuantityChange(item._id, 'Papa Sancochada', e.target.value)} className="w-16 p-2 border rounded-md text-center bg-white" />
+                                                        <input type="number" min="0" max={item.inventory} value={selectedItems[`${item._id}|Papa Sancochada`]?.cantidad || ''} placeholder="0" onChange={(e) => handleItemQuantityChange(item._id, 'Papa Sancochada', e.target.value)} className="w-16 p-2 border rounded-md text-center bg-white outline-none focus:ring-1" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -583,12 +745,12 @@ useEffect(() => {
                                     }
 
                                     return (
-                                        <div key={item._id} className="bg-gray-50 p-4 rounded-lg flex items-center justify-between shadow-sm">
+                                        <div key={item._id} className="bg-gray-50 p-4 rounded-lg flex items-center justify-between shadow-sm border">
                                             <div>
                                                 <p className="font-bold text-lg">{item.nombre}</p>
                                                 <p className="text-gray-600 text-md">S/. {item.precio.toFixed(2)}</p>
                                             </div>
-                                            <input type="number" min="0" max={item.inventory} value={selectedItems[`${item._id}|Normal`]?.cantidad || ''} placeholder="0" onChange={(e) => handleItemQuantityChange(item._id, 'Normal', e.target.value)} className="w-16 p-2 border rounded-md text-center bg-white" />
+                                            <input type="number" min="0" max={item.inventory} value={selectedItems[`${item._id}|Normal`]?.cantidad || ''} placeholder="0" onChange={(e) => handleItemQuantityChange(item._id, 'Normal', e.target.value)} className="w-16 p-2 border rounded-md text-center bg-white outline-none focus:ring-1" />
                                         </div>
                                     );
                                 })}
@@ -660,7 +822,7 @@ useEffect(() => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filteredMenuItems.map(item => (
-                        <div key={item._id} className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <div key={item._id} className="bg-gray-50 p-4 rounded-lg shadow-sm border">
                             <p className="font-bold text-lg">{item.nombre}</p>
                             <p className="text-green-600 font-semibold">S/. {item.precio.toFixed(2)}</p>
                             <p className="text-gray-600 text-sm">Disponibles: {item.inventory}</p>
@@ -687,6 +849,14 @@ useEffect(() => {
         isOpen={isComboModalOpen}
         onClose={() => setIsComboModalOpen(false)}
         alitasItems={alitasMenu}
+        onAddCombo={handleAddCombo}
+    />
+
+    <ParrillaComboModal
+        isOpen={isParrillaModalOpen}
+        onClose={() => setIsParrillaModalOpen(false)}
+        comboItem={activeParrillaCombo}
+        meatCount={activeParrillaMeatCount}
         onAddCombo={handleAddCombo}
     />
 
