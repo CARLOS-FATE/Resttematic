@@ -23,7 +23,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children }) => {
     );
 };
 
-const ParrillaComboModal = ({ isOpen, onClose, comboItem, meatCount, onAddCombo }) => {
+export const ParrillaComboModal = ({ isOpen, onClose, comboItem, meatCount, onAddCombo }) => {
     // Array of meat objects. We use primitive initialization inside the component 
     // to map over them properly.
     const [meats, setMeats] = useState([]);
@@ -146,7 +146,7 @@ const ParrillaComboModal = ({ isOpen, onClose, comboItem, meatCount, onAddCombo 
     );
 };
 
-const ComboModal = ({ isOpen, onClose, alitasItems, onAddCombo }) => {
+export const ComboModal = ({ isOpen, onClose, alitasItems, onAddCombo }) => {
     const [selectedFlavors, setSelectedFlavors] = useState([]);
     const [guarnicion, setGuarnicion] = useState('Papa Frita');
 
