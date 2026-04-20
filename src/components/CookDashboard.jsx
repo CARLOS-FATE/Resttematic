@@ -20,7 +20,8 @@ const CookDashboard = () => {
   
   // Auditory settings
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
-  const [knownPendingIds, setKnownPendingIds] = useState([]);
+  const prevPendingRef = React.useRef([]);
+  const [fetchCount, setFetchCount] = useState(0);
 
   const playNotificationSound = useCallback(() => {
     if (!isAudioEnabled) return;
@@ -54,15 +55,15 @@ const CookDashboard = () => {
   useEffect(() => {
       const currentPending = orders.filter(o => o.estado === 'pendiente').map(o => o._id);
       
-      if (knownPendingIds.length > 0) {
-          const newArrivals = currentPending.filter(id => !knownPendingIds.includes(id));
+      if (fetchCount > 1) {
+          const newArrivals = currentPending.filter(id => !prevPendingRef.current.includes(id));
           if (newArrivals.length > 0) {
               playNotificationSound();
           }
       }
-      // Actualizamos ids conocidos siempre
-      setKnownPendingIds(currentPending);
-  }, [orders]); // Se ejecuta al actualizar 'orders'
+      
+      prevPendingRef.current = currentPending;
+  }, [orders, fetchCount, playNotificationSound]);
 
   const fetchOrders = useCallback(async () => {
     if (token) { // Verificamos que el token exista antes de la llamada
@@ -75,6 +76,7 @@ const CookDashboard = () => {
         }
         const data = await response.json();
         setOrders(data);
+        setFetchCount(prev => prev + 1);
       } catch (err) {
         setError('Error al cargar los pedidos.');
       }

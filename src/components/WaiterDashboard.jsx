@@ -300,7 +300,8 @@ const WaiterDashboard = ({ userRole }) => {
 
     // Waiter Audio Notification State
     const [isAudioEnabled, setIsAudioEnabled] = useState(false);
-    const [knownReadyIds, setKnownReadyIds] = useState([]);
+    const prevReadyRef = React.useRef([]);
+    const [fetchCount, setFetchCount] = useState(0);
 
     const playReadySound = useCallback(() => {
         if (!isAudioEnabled) return;
@@ -335,14 +336,14 @@ const WaiterDashboard = ({ userRole }) => {
     useEffect(() => {
         const currentReady = orders.filter(o => o.estado === 'listo para pagar' && !o.esPagado).map(o => o._id);
         
-        if (knownReadyIds.length > 0) {
-            const newArrivals = currentReady.filter(id => !knownReadyIds.includes(id));
+        if (fetchCount > 1) {
+            const newArrivals = currentReady.filter(id => !prevReadyRef.current.includes(id));
             if (newArrivals.length > 0) {
                 playReadySound();
             }
         }
-        setKnownReadyIds(currentReady);
-    }, [orders]);
+        prevReadyRef.current = currentReady;
+    }, [orders, fetchCount, playReadySound]);
 
   if (!auth) return <p className="p-8 text-center text-gray-500">Inicializando...</p>;
 
@@ -358,6 +359,7 @@ const WaiterDashboard = ({ userRole }) => {
     }
     const data = await response.json();
     setOrders(data);
+    setFetchCount(prev => prev + 1);
   } catch (err) {
     console.error(err);
     setError('Error al cargar los pedidos.');
