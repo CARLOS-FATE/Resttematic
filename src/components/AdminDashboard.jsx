@@ -191,7 +191,7 @@ const AdminDashboard = ({ userRole }) => {
             });
             if (!response.ok) throw new Error('Error al crear el plato.');
             setSuccess('Plato creado con éxito.');
-            setNewMenuItem({ nombre: '', categoria: 'Desayunos', precio: '', inventory: '', descripcion: '' });
+            setNewMenuItem({ nombre: '', categoria: 'Parrillas', precio: '', inventory: '', descripcion: '' });
             fetchMenuItems();
         } catch (err) { setError(err.message); }
     };
@@ -215,7 +215,7 @@ const AdminDashboard = ({ userRole }) => {
             if (!response.ok) throw new Error('Error al actualizar el plato.');
 
             setSuccess('Plato actualizado con éxito.');
-            setNewMenuItem({ nombre: '', categoria: '', precio: '', inventory: '', descripcion: '' });
+            setNewMenuItem({ nombre: '', categoria: 'Parrillas', precio: '', inventory: '', descripcion: '' });
             setEditingMenuItem(null);
             fetchMenuItems();
         } catch (err) {
@@ -260,7 +260,7 @@ const AdminDashboard = ({ userRole }) => {
 
     const cancelEdit = () => {
         setEditingMenuItem(null);
-        setNewMenuItem({ nombre: '', categoria: '', precio: '', inventory: '', descripcion: '' });
+        setNewMenuItem({ nombre: '', categoria: 'Parrillas', precio: '', inventory: '', descripcion: '' });
     };
 
     const handleExport = () => {
@@ -591,6 +591,9 @@ const AdminDashboard = ({ userRole }) => {
                                         <option value="Barista">Barista</option>
                                         <option value="Bartender">Bartender</option>
                                         <option value="Sandwiches">Sandwiches</option>
+                                        <option value="Porciones">Porciones</option>
+                                        <option value="Postres">Postres</option>
+                                        <option value="Refrescos">Refrescos</option>
                                     </select>
                                     <input
                                         type="text"
