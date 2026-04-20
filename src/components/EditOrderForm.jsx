@@ -38,11 +38,11 @@ const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables
     }
   };
 
-  const handleItemQuantityChange = (itemId, quantity) => {
+  const handleItemQuantityChange = (itemNombre, quantity) => {
     const newQuantity = parseInt(quantity) || 0; // Asegurarse de que es un número
     setEditedItems(prevItems =>
       prevItems.map(item =>
-        item.menuItemId === itemId ? { ...item, cantidad: newQuantity } : item
+        item.nombre === itemNombre ? { ...item, cantidad: newQuantity } : item
       )
     );
   };
@@ -51,8 +51,8 @@ const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables
     if (selectedMenuItemId) {
       const existingItem = editedItems.find(item => item.menuItemId === selectedMenuItemId);
       if (existingItem) {
-        // Si el ítem ya existe, aumenta la cantidad
-        handleItemQuantityChange(selectedMenuItemId, existingItem.cantidad + 1);
+        // Si el ítem ya existe con el nombre por default, aumenta la cantidad
+        handleItemQuantityChange(existingItem.nombre, existingItem.cantidad + 1);
       } else {
         // Si no existe, lo agrega con cantidad 1
         const newItem = menuItems.find(item => item._id === selectedMenuItemId);
@@ -97,14 +97,14 @@ const handleRemoveItem = (itemId) => {
             <label className="block text-gray-700 font-bold">Items</label>
             <ul className="mb-2">
               {editedItems.map(item => (
-                <li key={item.menuItemId} className="flex justify-between items-center py-1">
-                  <span>{item.nombre}</span>
+                <li key={`${item.menuItemId}-${item.nombre}`} className="flex justify-between items-center py-1">
+                  <span className="text-sm border-b pb-1 w-full flex justify-between pr-4 font-medium">{item.nombre}</span>
                   <input
                     type="number"
                     min="1"
                     value={item.cantidad}
-                    onChange={(e) => handleItemQuantityChange(item.menuItemId, e.target.value)}
-                    className="w-16 p-1 border rounded text-center"
+                    onChange={(e) => handleItemQuantityChange(item.nombre, e.target.value)}
+                    className="w-16 p-1 border rounded text-center ml-2"
                   />
                 </li>
               ))}
