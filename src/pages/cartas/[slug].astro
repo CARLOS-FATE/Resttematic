@@ -15,7 +15,8 @@ if (!menuItem) {
 }
 
 await connectDB();
-const dbItems = await MenuItem.find({ categoria: menuItem.dbCategory });
+const queryCategories = menuItem.dbCategories || [menuItem.dbCategory];
+const dbItems = await MenuItem.find({ categoria: { $in: queryCategories } });
 
 const pageTitle = menuItem.name;
 ---
@@ -60,27 +61,49 @@ const pageTitle = menuItem.name;
       </h1>
 
       <!-- Menu Items Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12 max-w-5xl">
+      <div class="max-w-5xl">
         {
           dbItems.length > 0 ? (
-            dbItems.map((item) => (
-              <div class="group">
-                <div class="flex justify-between items-baseline border-b border-gray-600 pb-2 mb-2 border-dotted">
-                  <h3 class="text-xl md:text-2xl font-bold text-gray-100 font-serif tracking-wide group-hover:text-yellow-300 transition-colors">
-                    {item.nombre}
-                  </h3>
-                  <span class="text-xl font-bold text-yellow-400 font-sans whitespace-nowrap ml-4">
-                    S/. {item.precio.toFixed(2)}
-                  </span>
-                </div>
+            queryCategories.map(category => {
+               let itemsInCategory = dbItems.filter(item => item.categoria === category);
+               
+               if (category === "Bartender-Cocteles") {
+                   const legacyItems = dbItems.filter(item => item.categoria === "Bartender");
+                   itemsInCategory = [...itemsInCategory, ...legacyItems];
+               }
+               if (category === "Bartender") return null;
 
-                <p class="text-gray-400 text-sm md:text-base italic font-light ml-2 leading-relaxed">
-                  {item.descripcion || ""}
-                </p>
-              </div>
-            ))
+               if (itemsInCategory.length === 0) return null;
+
+               return (
+                 <div class="mb-14">
+                   {(queryCategories.length > 1) && (
+                       <h2 class="text-3xl font-bold text-yellow-500 mb-8 border-b border-gray-700 pb-3 uppercase tracking-wider font-serif">
+                           {category}
+                       </h2>
+                   )}
+                   <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
+                     {itemsInCategory.map((item) => (
+                       <div class="group">
+                         <div class="flex justify-between items-baseline border-b border-gray-600 pb-2 mb-2 border-dotted">
+                           <h3 class="text-xl md:text-2xl font-bold text-gray-100 font-serif tracking-wide group-hover:text-yellow-300 transition-colors">
+                             {item.nombre}
+                           </h3>
+                           <span class="text-xl font-bold text-yellow-400 font-sans whitespace-nowrap ml-4">
+                             S/. {item.precio.toFixed(2)}
+                           </span>
+                         </div>
+                         <p class="text-gray-400 text-sm md:text-base italic font-light ml-2 leading-relaxed">
+                           {item.descripcion || ""}
+                         </p>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               );
+            })
           ) : (
-            <div class="col-span-full text-center text-gray-500 text-xl italic py-20">
+            <div class="text-center text-gray-500 text-xl italic py-20">
               Próximamente nuevas delicias...
             </div>
           )

@@ -34,7 +34,7 @@ export const menuItems = [
         image: "/portadacarta.jpeg",
         price: "desde S/. 10.00",
         slug: "hamburguesas",
-        dbCategory: "Hamburguesas",
+        dbCategories: ["Hamburguesas", "Sandwiches"],
         images: [
             "/portadacarta.jpeg",
             "/carta_nocturna.jpeg",
@@ -60,7 +60,7 @@ export const menuItems = [
         image: "/portadacarta.jpeg",
         price: "desde S/. 12.00",
         slug: "bartenderRefrescos",
-        dbCategory: "Bartender",
+        dbCategories: ["Bartender-Cocteles", "Bartender-Mocteles (sin alcohol)", "Refrescos", "Bartender"],
         images: [
             "/portadacarta.jpeg",
             "/carta_nocturna.jpeg"
