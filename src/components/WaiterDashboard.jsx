@@ -229,6 +229,124 @@ export const ComboModal = ({ isOpen, onClose, alitasItems, onAddCombo }) => {
     );
 };
 
+export const AnticuchoModal = ({ isOpen, onClose, anticuchoItem, onAddVariant }) => {
+    const [tipo, setTipo] = useState('');
+    const [guarnicion, setGuarnicion] = useState('Papa Frita');
+
+    useEffect(() => {
+        if (isOpen) {
+            setTipo('');
+            setGuarnicion('Papa Frita');
+        }
+    }, [isOpen]);
+
+    if (!isOpen || !anticuchoItem) return null;
+
+    const handleAdd = () => {
+        if (!tipo) return;
+        const fullName = `${anticuchoItem.nombre} [🍟 ${guarnicion}] | 🍢 Anticucho de ${tipo}`;
+        onAddVariant({
+            inventoryItemId: anticuchoItem._id,
+            price: anticuchoItem.precio,
+            name: fullName,
+            variant: `Anticucho_${tipo}`
+        });
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center">
+            <div className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-sm mx-4">
+                <h3 className="text-xl font-bold text-red-900 mb-4">Configurar {anticuchoItem.nombre}</h3>
+                
+                <div className="mb-4">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">1. Guarnición Base:</label>
+                    <div className="flex gap-4 bg-gray-50 p-3 rounded border border-gray-200">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" value="Papa Frita" checked={guarnicion === 'Papa Frita'} onChange={(e) => setGuarnicion(e.target.value)} />
+                            <span className="font-medium">🍟 Frita</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" value="Papa Sancochada" checked={guarnicion === 'Papa Sancochada'} onChange={(e) => setGuarnicion(e.target.value)} />
+                            <span className="font-medium">🥔 Sancochada</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div className="mb-6">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">2. Tipo de Anticucho:</label>
+                    <select 
+                        value={tipo} 
+                        onChange={(e) => setTipo(e.target.value)}
+                        className="w-full p-2 border border-red-200 rounded outline-none focus:ring-2 focus:ring-red-400"
+                    >
+                        <option value="">-- Seleccionar --</option>
+                        <option value="Pollo">Pollo</option>
+                        <option value="Corazón">Corazón</option>
+                    </select>
+                </div>
+
+                <div className="flex justify-end gap-3 border-t pt-4">
+                    <button type="button" onClick={onClose} className="px-5 py-2 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300">Cancelar</button>
+                    <button type="button" onClick={handleAdd} disabled={!tipo} className="px-5 py-2 bg-red-600 text-white font-bold rounded-md disabled:bg-gray-400 hover:bg-red-700">
+                        Agregar
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export const TermolinModal = ({ isOpen, onClose, termolinItem, onAddVariant }) => {
+    const [sabor, setSabor] = useState('');
+    const sabores = ['Maracuyá', 'Jamaica', 'Palo santo', 'Piña', 'Tamarindo', 'Mullaca'];
+
+    useEffect(() => {
+        if (isOpen) setSabor('');
+    }, [isOpen]);
+
+    if (!isOpen || !termolinItem) return null;
+
+    const handleAdd = () => {
+        if (!sabor) return;
+        const fullName = `${termolinItem.nombre} de ${sabor}`;
+        onAddVariant({
+            inventoryItemId: termolinItem._id,
+            price: termolinItem.precio,
+            name: fullName,
+            variant: `Sabor_${sabor}`
+        });
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center">
+            <div className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-sm mx-4">
+                <h3 className="text-xl font-bold text-purple-900 mb-4">Sabor de {termolinItem.nombre}</h3>
+                
+                <div className="mb-6">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Elegir Sabor:</label>
+                    <select 
+                        value={sabor} 
+                        onChange={(e) => setSabor(e.target.value)}
+                        className="w-full p-2 border border-purple-200 rounded outline-none focus:ring-2 focus:ring-purple-400"
+                    >
+                        <option value="">-- Seleccionar --</option>
+                        {sabores.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                </div>
+
+                <div className="flex justify-end gap-3 border-t pt-4">
+                    <button type="button" onClick={onClose} className="px-5 py-2 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300">Cancelar</button>
+                    <button type="button" onClick={handleAdd} disabled={!sabor} className="px-5 py-2 bg-purple-600 text-white font-bold rounded-md disabled:bg-gray-400 hover:bg-purple-700">
+                        Agregar
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const TicketVirtualModal = ({ isOpen, onClose, onConfirm, orderItems, tableNumber }) => {
     if (!isOpen) return null;
     const total = orderItems.reduce((acc, item) => acc + (item.precioUnitario * item.cantidad), 0);
@@ -294,6 +412,12 @@ const WaiterDashboard = ({ userRole }) => {
     const [isParrillaModalOpen, setIsParrillaModalOpen] = useState(false);
     const [activeParrillaCombo, setActiveParrillaCombo] = useState(null);
     const [activeParrillaMeatCount, setActiveParrillaMeatCount] = useState(2);
+
+    const [isAnticuchoModalOpen, setIsAnticuchoModalOpen] = useState(false);
+    const [activeAnticucho, setActiveAnticucho] = useState(null);
+
+    const [isTermolinModalOpen, setIsTermolinModalOpen] = useState(false);
+    const [activeTermolin, setActiveTermolin] = useState(null);
 
     const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
     const [pendingOrderItems, setPendingOrderItems] = useState([]);
@@ -549,6 +673,16 @@ useEffect(() => {
       setIsParrillaModalOpen(true);
   };
   
+  const handleOpenAnticuchoModal = (item) => {
+      setActiveAnticucho(item);
+      setIsAnticuchoModalOpen(true);
+  };
+
+  const handleOpenTermolinModal = (item) => {
+      setActiveTermolin(item);
+      setIsTermolinModalOpen(true);
+  };
+  
   const getCategories = () => {
     return [...new Set(menuItems.map(item => item.categoria))];
   };
@@ -758,11 +892,50 @@ useEffect(() => {
                                 )}
 
                                 {filteredMenuItems.map(item => {
+                                    const nameL = item.nombre.toLowerCase();
                                     const isParrillaOrAlita = filterCategory === 'Parrillas' || filterCategory === 'Alitas';
                                     
+                                    // SPECIAL: TERMOLIN
+                                    if (nameL.includes('termolin')) {
+                                        return (
+                                            <div key={item._id} className="bg-purple-50 p-4 rounded-lg flex flex-col justify-between shadow-sm border border-purple-200">
+                                                <div className="mb-3 border-b border-purple-100 pb-2 flex justify-between items-start">
+                                                    <p className="font-bold text-lg text-purple-900">{item.nombre}</p>
+                                                    <p className="text-purple-700 font-semibold bg-purple-100 px-2 rounded">S/. {item.precio.toFixed(2)}</p>
+                                                </div>
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => handleOpenTermolinModal(item)}
+                                                    className="w-full bg-purple-600 text-white font-bold py-3 rounded-lg shadow-sm hover:bg-purple-700 transition flex justify-center items-center gap-2 mt-2"
+                                                >
+                                                    🍹 Elegir Sabor
+                                                </button>
+                                            </div>
+                                        );
+                                    }
+
+                                    // SPECIAL: ANTICUCHOS OR OREJA DE VAN GOGH
+                                    if (nameL.includes('anticucho') || nameL.includes('oreja de van gogh')) {
+                                        return (
+                                            <div key={item._id} className="bg-red-50 p-4 rounded-lg flex flex-col justify-between shadow-sm border border-red-200">
+                                                <div className="mb-3 border-b border-red-100 pb-2 flex justify-between items-start">
+                                                    <p className="font-bold text-lg text-red-900">{item.nombre}</p>
+                                                    <p className="text-red-700 font-semibold bg-red-100 px-2 rounded">S/. {item.precio.toFixed(2)}</p>
+                                                </div>
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => handleOpenAnticuchoModal(item)}
+                                                    className="w-full bg-red-600 text-white font-bold py-3 rounded-lg shadow-sm hover:bg-red-700 transition flex justify-center items-center gap-2 mt-2"
+                                                >
+                                                    🍢 Configurar Anticucho
+                                                </button>
+                                            </div>
+                                        );
+                                    }
+
                                     if (isParrillaOrAlita) {
                                         // LOGICA DE COMBOS ESPECIALES DE PARRILLA
-                                        if (filterCategory === 'Parrillas' && item.nombre.toLowerCase().includes('combo')) {
+                                        if (filterCategory === 'Parrillas' && nameL.includes('combo') && !nameL.includes('oreja de van gogh')) {
                                             return (
                                                 <div key={item._id} className="bg-red-50 p-4 rounded-lg flex flex-col justify-between shadow-sm border border-red-200">
                                                     <div className="mb-3 border-b border-red-100 pb-2 flex justify-between items-start">
@@ -948,12 +1121,26 @@ useEffect(() => {
         onAddCombo={handleAddCombo}
     />
 
-    <ParrillaComboModal
-        isOpen={isParrillaModalOpen}
-        onClose={() => setIsParrillaModalOpen(false)}
-        comboItem={activeParrillaCombo}
-        meatCount={activeParrillaMeatCount}
-        onAddCombo={handleAddCombo}
+    <ParrillaComboModal 
+        isOpen={isParrillaModalOpen} 
+        onClose={() => setIsParrillaModalOpen(false)} 
+        comboItem={activeParrillaCombo} 
+        meatCount={activeParrillaMeatCount} 
+        onAddCombo={handleAddCombo} 
+    />
+    
+    <AnticuchoModal
+        isOpen={isAnticuchoModalOpen}
+        onClose={() => setIsAnticuchoModalOpen(false)}
+        anticuchoItem={activeAnticucho}
+        onAddVariant={handleAddCombo}
+    />
+
+    <TermolinModal
+        isOpen={isTermolinModalOpen}
+        onClose={() => setIsTermolinModalOpen(false)}
+        termolinItem={activeTermolin}
+        onAddVariant={handleAddCombo}
     />
 
     <TicketVirtualModal

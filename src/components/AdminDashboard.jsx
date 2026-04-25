@@ -589,7 +589,9 @@ const AdminDashboard = ({ userRole }) => {
                                         <option value="Alitas">Alitas</option>
                                         <option value="Hamburguesas">Hamburguesas</option>
                                         <option value="Barista">Barista</option>
-                                        <option value="Bartender">Bartender</option>
+                                        <option value="Bartender-Cocteles">Bartender-Cocteles</option>
+                                        <option value="Bartender-Mocteles (sin alcohol)">Bartender-Mocteles (sin alcohol)</option>
+                                        <option value="Bartender">Bartender (Antiguo)</option>
                                         <option value="Sandwiches">Sandwiches</option>
                                         <option value="Porciones">Porciones</option>
                                         <option value="Postres">Postres</option>

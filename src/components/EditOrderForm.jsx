@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ComboModal, ParrillaComboModal } from './WaiterDashboard.jsx';
+import { ComboModal, ParrillaComboModal, AnticuchoModal, TermolinModal } from './WaiterDashboard.jsx';
 
 const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables }) => {
   const [editedTableNumber, setEditedTableNumber] = useState(order.numeroMesa);
@@ -10,6 +10,12 @@ const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables
   const [isParrillaModalOpen, setIsParrillaModalOpen] = useState(false);
   const [activeParrillaCombo, setActiveParrillaCombo] = useState(null);
   const [activeParrillaMeatCount, setActiveParrillaMeatCount] = useState(2);
+
+  const [isAnticuchoModalOpen, setIsAnticuchoModalOpen] = useState(false);
+  const [activeAnticucho, setActiveAnticucho] = useState(null);
+
+  const [isTermolinModalOpen, setIsTermolinModalOpen] = useState(false);
+  const [activeTermolin, setActiveTermolin] = useState(null);
 
   const alitasMenu = menuItems.filter(item => item.categoria === 'Alitas');
 
@@ -108,6 +114,28 @@ const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables
         e.target.value = '';
         return;
     }
+    
+    if (val.startsWith('ANTICUCHO_COMBO|')) {
+        const itemId = val.split('|')[1];
+        const item = menuItems.find(mi => mi._id === itemId);
+        if (item) {
+            setActiveAnticucho(item);
+            setIsAnticuchoModalOpen(true);
+        }
+        e.target.value = '';
+        return;
+    }
+
+    if (val.startsWith('TERMOLIN_COMBO|')) {
+        const itemId = val.split('|')[1];
+        const item = menuItems.find(mi => mi._id === itemId);
+        if (item) {
+            setActiveTermolin(item);
+            setIsTermolinModalOpen(true);
+        }
+        e.target.value = '';
+        return;
+    }
 
     let itemId = val;
     let variant = 'Normal';
@@ -147,7 +175,12 @@ const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables
     
     // Sort array so combos appear at top of options visually and variants are clear
     menuItems.forEach(item => {
-        if (item.categoria === 'Parrillas' && item.nombre.toLowerCase().includes('combo')) {
+        const nameL = item.nombre.toLowerCase();
+        if (nameL.includes('termolin')) {
+            options.push({ value: `TERMOLIN_COMBO|${item._id}`, label: `🍹 ${item.nombre} (Elegir Sabor)` });
+        } else if (nameL.includes('anticucho') || nameL.includes('oreja de van gogh')) {
+            options.push({ value: `ANTICUCHO_COMBO|${item._id}`, label: `🍢 ${item.nombre} (Configurar Anticucho)` });
+        } else if (item.categoria === 'Parrillas' && nameL.includes('combo') && !nameL.includes('oreja de van gogh')) {
             options.push({ value: `PARRILLA_COMBO|${item._id}`, label: `🥩 ${item.nombre} (Configurar Carnes)` });
         } else if (item.categoria === 'Parrillas' || item.categoria === 'Alitas') {
             options.push({ value: `${item._id}|Papa Frita`, label: `${item.nombre} [🥔 Frita]` });
@@ -160,8 +193,12 @@ const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables
     return options.sort((a,b) => {
         if (a.value === 'ALITAS_COMBO') return -1;
         if (b.value === 'ALITAS_COMBO') return 1;
-        if (a.label.startsWith('🥩') && !b.label.startsWith('🥩')) return -1;
-        if (!a.label.startsWith('🥩') && b.label.startsWith('🥩')) return 1;
+        
+        const isSpecialA = a.label.startsWith('🥩') || a.label.startsWith('🍢') || a.label.startsWith('🍹');
+        const isSpecialB = b.label.startsWith('🥩') || b.label.startsWith('🍢') || b.label.startsWith('🍹');
+        if (isSpecialA && !isSpecialB) return -1;
+        if (!isSpecialA && isSpecialB) return 1;
+        
         return a.label.localeCompare(b.label);
     });
   }, [menuItems]);
@@ -250,6 +287,20 @@ const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables
             comboItem={activeParrillaCombo}
             meatCount={activeParrillaMeatCount}
             onAddCombo={handleAddCombo}
+        />
+        
+        <AnticuchoModal
+            isOpen={isAnticuchoModalOpen}
+            onClose={() => setIsAnticuchoModalOpen(false)}
+            anticuchoItem={activeAnticucho}
+            onAddVariant={handleAddCombo}
+        />
+
+        <TermolinModal
+            isOpen={isTermolinModalOpen}
+            onClose={() => setIsTermolinModalOpen(false)}
+            termolinItem={activeTermolin}
+            onAddVariant={handleAddCombo}
         />
       </div>
     </div>
