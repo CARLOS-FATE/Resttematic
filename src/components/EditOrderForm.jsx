@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ComboModal, ParrillaComboModal, AnticuchoModal, TermolinModal } from './WaiterDashboard.jsx';
+import { ComboModal, ParrillaComboModal, AnticuchoModal, TermolinModal, VasoModal } from './WaiterDashboard.jsx';
 
 const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables }) => {
   const [editedTableNumber, setEditedTableNumber] = useState(order.numeroMesa);
@@ -16,6 +16,9 @@ const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables
 
   const [isTermolinModalOpen, setIsTermolinModalOpen] = useState(false);
   const [activeTermolin, setActiveTermolin] = useState(null);
+
+  const [isVasoModalOpen, setIsVasoModalOpen] = useState(false);
+  const [activeVaso, setActiveVaso] = useState(null);
 
   const alitasMenu = menuItems.filter(item => item.categoria === 'Alitas');
 
@@ -137,6 +140,17 @@ const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables
         return;
     }
 
+    if (val.startsWith('VASO_COMBO|')) {
+        const itemId = val.split('|')[1];
+        const item = menuItems.find(mi => mi._id === itemId);
+        if (item) {
+            setActiveVaso(item);
+            setIsVasoModalOpen(true);
+        }
+        e.target.value = '';
+        return;
+    }
+
     let itemId = val;
     let variant = 'Normal';
     if (val.includes('|')) {
@@ -178,6 +192,8 @@ const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables
         const nameL = item.nombre.toLowerCase();
         if (nameL.includes('termolin')) {
             options.push({ value: `TERMOLIN_COMBO|${item._id}`, label: `🍹 ${item.nombre} (Elegir Sabor)` });
+        } else if (nameL.includes('vaso')) {
+            options.push({ value: `VASO_COMBO|${item._id}`, label: `🥤 ${item.nombre} (Elegir Sabor)` });
         } else if (nameL.includes('anticucho') || nameL.includes('oreja de van gogh')) {
             options.push({ value: `ANTICUCHO_COMBO|${item._id}`, label: `🍢 ${item.nombre} (Configurar Anticucho)` });
         } else if (item.categoria === 'Parrillas' && nameL.includes('combo') && !nameL.includes('oreja de van gogh')) {
@@ -300,6 +316,13 @@ const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables
             isOpen={isTermolinModalOpen}
             onClose={() => setIsTermolinModalOpen(false)}
             termolinItem={activeTermolin}
+            onAddVariant={handleAddCombo}
+        />
+
+        <VasoModal
+            isOpen={isVasoModalOpen}
+            onClose={() => setIsVasoModalOpen(false)}
+            vasoItem={activeVaso}
             onAddVariant={handleAddCombo}
         />
       </div>

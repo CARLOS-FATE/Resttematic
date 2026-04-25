@@ -347,6 +347,56 @@ export const TermolinModal = ({ isOpen, onClose, termolinItem, onAddVariant }) =
     );
 };
 
+export const VasoModal = ({ isOpen, onClose, vasoItem, onAddVariant }) => {
+    const [sabor, setSabor] = useState('');
+    const sabores = ['Chicha morada', 'Limonada', 'Maracuyá'];
+
+    useEffect(() => {
+        if (isOpen) setSabor('');
+    }, [isOpen]);
+
+    if (!isOpen || !vasoItem) return null;
+
+    const handleAdd = () => {
+        if (!sabor) return;
+        const fullName = `${vasoItem.nombre} de ${sabor}`;
+        onAddVariant({
+            inventoryItemId: vasoItem._id,
+            price: vasoItem.precio,
+            name: fullName,
+            variant: `Sabor_${sabor}`
+        });
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center">
+            <div className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-sm mx-4">
+                <h3 className="text-xl font-bold text-blue-900 mb-4">Sabor de {vasoItem.nombre}</h3>
+                
+                <div className="mb-6">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Elegir Sabor:</label>
+                    <select 
+                        value={sabor} 
+                        onChange={(e) => setSabor(e.target.value)}
+                        className="w-full p-2 border border-blue-200 rounded outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+                        <option value="">-- Seleccionar --</option>
+                        {sabores.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                </div>
+
+                <div className="flex justify-end gap-3 border-t pt-4">
+                    <button type="button" onClick={onClose} className="px-5 py-2 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300">Cancelar</button>
+                    <button type="button" onClick={handleAdd} disabled={!sabor} className="px-5 py-2 bg-blue-600 text-white font-bold rounded-md disabled:bg-gray-400 hover:bg-blue-700">
+                        Agregar
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const TicketVirtualModal = ({ isOpen, onClose, onConfirm, orderItems, tableNumber }) => {
     if (!isOpen) return null;
     const total = orderItems.reduce((acc, item) => acc + (item.precioUnitario * item.cantidad), 0);
@@ -418,6 +468,9 @@ const WaiterDashboard = ({ userRole }) => {
 
     const [isTermolinModalOpen, setIsTermolinModalOpen] = useState(false);
     const [activeTermolin, setActiveTermolin] = useState(null);
+
+    const [isVasoModalOpen, setIsVasoModalOpen] = useState(false);
+    const [activeVaso, setActiveVaso] = useState(null);
 
     const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
     const [pendingOrderItems, setPendingOrderItems] = useState([]);
@@ -683,6 +736,11 @@ useEffect(() => {
       setIsTermolinModalOpen(true);
   };
   
+  const handleOpenVasoModal = (item) => {
+      setActiveVaso(item);
+      setIsVasoModalOpen(true);
+  };
+  
   const getCategories = () => {
     return [...new Set(menuItems.map(item => item.categoria))];
   };
@@ -895,18 +953,19 @@ useEffect(() => {
                                     const nameL = item.nombre.toLowerCase();
                                     const isParrillaOrAlita = filterCategory === 'Parrillas' || filterCategory === 'Alitas';
                                     
-                                    // SPECIAL: TERMOLIN
-                                    if (nameL.includes('termolin')) {
+                                    // SPECIAL: TERMOLIN OR VASO
+                                    if (nameL.includes('termolin') || nameL.includes('vaso')) {
+                                        const isVaso = nameL.includes('vaso');
                                         return (
-                                            <div key={item._id} className="bg-purple-50 p-4 rounded-lg flex flex-col justify-between shadow-sm border border-purple-200">
-                                                <div className="mb-3 border-b border-purple-100 pb-2 flex justify-between items-start">
-                                                    <p className="font-bold text-lg text-purple-900">{item.nombre}</p>
-                                                    <p className="text-purple-700 font-semibold bg-purple-100 px-2 rounded">S/. {item.precio.toFixed(2)}</p>
+                                            <div key={item._id} className={`${isVaso ? 'bg-blue-50 border-blue-200' : 'bg-purple-50 border-purple-200'} p-4 rounded-lg flex flex-col justify-between shadow-sm border`}>
+                                                <div className={`mb-3 border-b ${isVaso ? 'border-blue-100' : 'border-purple-100'} pb-2 flex justify-between items-start`}>
+                                                    <p className={`font-bold text-lg ${isVaso ? 'text-blue-900' : 'text-purple-900'}`}>{item.nombre}</p>
+                                                    <p className={`${isVaso ? 'text-blue-700 bg-blue-100' : 'text-purple-700 bg-purple-100'} font-semibold px-2 rounded`}>S/. {item.precio.toFixed(2)}</p>
                                                 </div>
                                                 <button 
                                                     type="button" 
-                                                    onClick={() => handleOpenTermolinModal(item)}
-                                                    className="w-full bg-purple-600 text-white font-bold py-3 rounded-lg shadow-sm hover:bg-purple-700 transition flex justify-center items-center gap-2 mt-2"
+                                                    onClick={() => isVaso ? handleOpenVasoModal(item) : handleOpenTermolinModal(item)}
+                                                    className={`w-full ${isVaso ? 'bg-blue-600 hover:bg-blue-700' : 'bg-purple-600 hover:bg-purple-700'} text-white font-bold py-3 rounded-lg shadow-sm transition flex justify-center items-center gap-2 mt-2`}
                                                 >
                                                     🍹 Elegir Sabor
                                                 </button>
@@ -1140,6 +1199,13 @@ useEffect(() => {
         isOpen={isTermolinModalOpen}
         onClose={() => setIsTermolinModalOpen(false)}
         termolinItem={activeTermolin}
+        onAddVariant={handleAddCombo}
+    />
+
+    <VasoModal
+        isOpen={isVasoModalOpen}
+        onClose={() => setIsVasoModalOpen(false)}
+        vasoItem={activeVaso}
         onAddVariant={handleAddCombo}
     />
 
