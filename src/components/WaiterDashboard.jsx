@@ -974,7 +974,7 @@ useEffect(() => {
                                     }
 
                                     // SPECIAL: ANTICUCHOS OR OREJA DE VAN GOGH
-                                    if (nameL.includes('anticucho') || nameL.includes('oreja de van gogh')) {
+                                    if (filterCategory === 'Parrillas' && (nameL.includes('anticucho') || nameL.includes('oreja de van gogh'))) {
                                         return (
                                             <div key={item._id} className="bg-red-50 p-4 rounded-lg flex flex-col justify-between shadow-sm border border-red-200">
                                                 <div className="mb-3 border-b border-red-100 pb-2 flex justify-between items-start">

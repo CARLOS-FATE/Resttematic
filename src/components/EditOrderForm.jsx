@@ -194,7 +194,7 @@ const EditOrderForm = ({ order, onUpdate, onClose, menuItems, authHeader, tables
             options.push({ value: `TERMOLIN_COMBO|${item._id}`, label: `🍹 ${item.nombre} (Elegir Sabor)` });
         } else if (nameL.includes('vaso')) {
             options.push({ value: `VASO_COMBO|${item._id}`, label: `🥤 ${item.nombre} (Elegir Sabor)` });
-        } else if (nameL.includes('anticucho') || nameL.includes('oreja de van gogh')) {
+        } else if (item.categoria === 'Parrillas' && (nameL.includes('anticucho') || nameL.includes('oreja de van gogh'))) {
             options.push({ value: `ANTICUCHO_COMBO|${item._id}`, label: `🍢 ${item.nombre} (Configurar Anticucho)` });
         } else if (item.categoria === 'Parrillas' && nameL.includes('combo') && !nameL.includes('oreja de van gogh')) {
             options.push({ value: `PARRILLA_COMBO|${item._id}`, label: `🥩 ${item.nombre} (Configurar Carnes)` });
